@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net;
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                 font-src https://fonts.gstatic.com;
+                 img-src 'self' data:;
+                 connect-src 'none';">
+  <title>JeevanPlanner - CTC vs Reality (FY 2025-26)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    /* Tooltips */
+    .tooltip {
+      position: absolute;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s;
+      background: #1f2937;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      z-index: 1000;
+      white-space: nowrap;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 250px;
+      pointer-events: none;
+      transform: translateY(-100%);
+      margin-top: -5px;
+    }
+
+    .has-tooltip:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Inputs */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* Range Slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: #cbd5e1;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #4f46e5;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+
+    /* Layout & Cards */
+    .max-w-3xl {
+      max-width: none !important;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Forms */
+    .input-field {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1e293b;
+      background: white;
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .input-field-large {
+      font-size: 1.5rem;
+      font-weight: 700;
+      padding: 1rem 1.25rem;
+    }
+
+    /* Buttons & Stats */
+    .btn {
+      padding: 0.875rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    .btn-secondary {
+      background: #f8fafc;
+      color: #475569;
+      border: 1.5px solid #e2e8f0;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.5rem;
+    }
+
+    .stat-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .badge-primary {
+      background: rgba(79, 70, 229, 0.1);
+      color: #4f46e5;
+      border: 1px solid rgba(79, 70, 229, 0.2);
+    }
+
+    .highlight-number {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      body {
+        font-size: 15px;
+      }
+
+      .grid-cols-3 {
+        grid-template-columns: 1fr !important;
+      }
+
+      h1 {
+        font-size: 1.5rem !important;
+      }
+
+      .stat-value {
+        font-size: 1.75rem !important;
+      }
+
+      .p-6,
+      .p-8 {
+        padding: 1rem !important;
+      }
+    }
+
+    @media (min-width: 1025px) {
+      .max-w-3xl {
+        max-width: 1200px !important;
+        margin: 0 auto;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        background: white;
+      }
+
+      nav,
+      button,
+      .no-print {
+        display: none !important;
+      }
+
+      .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+
+      #result {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="text-slate-800">
+  <nav class="py-3 md:py-4">
+    <div class="max-w-3xl mx-auto px-4 md:px-0">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <span class="text-white font-bold text-sm">₹</span>
+          </div>
+          <div>
+            <h1 class="text-lg md:text-xl font-bold text-indigo-700">BharatFinanceCheck</h1>
+            <p class="text-xs text-slate-500 hidden md:block">CTC vs Reality (Platinum v2.3)</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="badge badge-primary">FY 25-26</span>
+          <button onclick="window.print()" class="p-2 text-slate-500 hover:text-slate-700"
+            title="Print Report" rel="noopener">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto pb-16">
+    <div class="px-4 md:px-0 py-6 md:py-8">
+      <div class="text-center mb-8">
+        <div
+          class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-2 rounded-full border border-indigo-100 mb-4">
+          <span class="text-indigo-600 font-bold text-sm">🇮🇳 Updated for Budget 2025</span>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-3 leading-tight">Your Offer Letter is Lying to You
+        </h1>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">HR sells you the CTC. The Gov takes its cut. Let's find out
+          what <span class="font-bold text-indigo-600">actually</span> hits your bank account.</p>
+      </div>
+    </div>
+
+    <div class="card p-4 md:p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Current Age</label>
+          <input type="number" id="ageInput" min="18" max="80" value="25" class="input-field" oninput="calculateAll()">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">State (For Professional Tax)</label>
+          <select id="stateSelect" class="input-field" onchange="calculateAll()">
+            <option value="maharashtra">Maharashtra</option>
+            <option value="karnataka">Karnataka</option>
+            <option value="telangana">Telangana</option>
+            <option value="andhra_pradesh">Andhra Pradesh</option>
+            <option value="delhi">Delhi/NCR (Nil PT)</option>
+            <option value="tamil_nadu">Tamil Nadu</option>
+            <option value="west_bengal">West Bengal</option>
+            <option value="gujarat">Gujarat</option>
+            <option value="other">Other States</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card p-5 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center"><span
+              class="text-indigo-600 font-bold">1</span></div>
+          <div>
+            <h2 class="section-title">The Reality Check</h2>
+            <p class="section-subtitle">Based on New Tax Regime (FY 2025-26)</p>
+          </div>
+        </div>
+
+        <div class="stat-card mb-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div><span class="text-sm font-semibold text-slate-700">Tax Regime</span>
+              <p class="text-xs text-slate-500">Updated for FY26 (Rebate up to ₹12L)</p>
+            </div>
+            <div class="flex gap-2">
+              <label class="flex items-center gap-2 cursor-pointer px-3 py-2 bg-white rounded-lg border"><input
+                  type="radio" name="taxRegime" value="new" checked class="accent-indigo-600"
+                  onchange="toggleRegimeUI(); calculateAll();"><span class="text-sm font-semibold">New</span></label>
+              <label class="flex items-center gap-2 cursor-pointer px-3 py-2 bg-white rounded-lg border"><input
+                  type="radio" name="taxRegime" value="old" class="accent-indigo-600"
+                  onchange="toggleRegimeUI(); calculateAll();"><span class="text-sm font-semibold">Old</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div id="regimeComparison"
+          class="hidden p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center"><span
+                class="text-blue-600">💡</span></div>
+            <div>
+              <p class="text-sm font-semibold text-slate-800">Tax Saving Tip</p>
+              <div id="regimeAdvice" class="text-sm text-slate-600">Calculating...</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="oldRegimeInputs" class="hidden space-y-4 mb-6">
+          <div class="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
+            <label class="block text-sm font-semibold text-amber-800 mb-2">Monthly Rent Paid (For HRA)</label>
+            <div class="flex items-center gap-2"><span class="text-2xl font-bold text-amber-700">₹</span><input
+                type="number" id="monthlyRent" value="0" min="0"
+                class="flex-1 bg-transparent text-2xl font-bold text-amber-900 focus:outline-none placeholder-amber-300"
+                oninput="calculateAll()"></div>
+          </div>
+          <div class="p-4 bg-white rounded-xl border border-slate-200">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Deductions (80C, 80D, etc.)</label>
+            <input type="number" id="oldRegimeDeductions" value="150000" min="0" class="input-field"
+              oninput="calculateAll()">
+            <p class="text-xs text-slate-500 mt-1">80C+80D+80CCD combined (Std Ded. auto-added)</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3 bg-white rounded-xl border border-slate-200">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">80E Edu Loan Interest</label>
+              <input type="number" id="section80E_fresher" value="0" min="0" class="input-field text-sm"
+                placeholder="No limit" oninput="calculateAll()">
+            </div>
+            <div class="p-3 bg-white rounded-xl border border-slate-200">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Sec 24(b) Home Loan Int</label>
+              <input type="number" id="section24_fresher" value="0" min="0" class="input-field text-sm"
+                placeholder="Max ₹2L" oninput="calculateAll()">
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Annual CTC (₹ LPA)</label>
+            <div class="relative">
+              <input type="number" id="ctc" min="0" step="0.5" value="" class="input-field input-field-large"
+                oninput="calculateAll()">
+              <div class="absolute right-3 top-1/2 transform -translate-y-1/2"><span
+                  class="text-slate-400 text-sm">Lakhs/Year</span></div>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-3">
+              <div><label class="text-xs font-semibold text-slate-500 mb-1">City Tier (HRA)</label><select id="cityTier"
+                  class="input-field text-sm" onchange="calculateAll()">
+                  <option value="tier1">Tier 1 (50%)</option>
+                  <option value="tier2" selected>Tier 2 (40%)</option>
+                </select></div>
+              <div><label class="text-xs font-semibold text-slate-500 mb-1">Monthly HRA (Optional)</label><input
+                  type="number" id="actualHra" placeholder="Auto" class="input-field text-sm" oninput="calculateAll()">
+              </div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <p class="stat-label">Estimated Monthly In-Hand</p>
+            <div class="stat-value highlight-number" id="monthlyInHand">₹0</div>
+            <p class="text-xs text-slate-500 mt-2">*After PF, Tax & Gratuity</p>
+            <div class="mt-4 space-y-2">
+              <div class="flex justify-between items-center"><span class="text-sm text-slate-600">Basic
+                  Salary:</span><span class="text-sm font-semibold" id="basicSalary">₹0</span></div>
+              <div class="flex justify-between items-center"><span class="text-sm text-slate-600">HRA
+                  Exemption:</span><span class="text-sm font-semibold text-emerald-600" id="hraAmount">₹0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <div class="h-48 md:h-56"><canvas id="salaryChart"></canvas></div>
+        </div>
+
+        <div class="mt-6">
+          <button onclick="toggleBreakdown()"
+            class="w-full text-left flex items-center justify-between p-4 bg-slate-50 rounded-xl border hover:bg-slate-100 transition-colors">
+            <div class="flex items-center gap-3"><span class="font-semibold text-slate-700">Show Salary Breakdown</span>
+            </div><span id="arrow" class="text-slate-400 transition-transform">▼</span>
+          </button>
+          <div id="salaryBreakdown" class="hidden mt-4 space-y-3">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-4 bg-slate-50 rounded-lg border">
+                <p class="text-sm text-slate-500 mb-1">Gross Monthly</p>
+                <p class="text-lg font-bold" id="grossMonthly">₹0</p>
+              </div>
+              <div class="p-4 bg-slate-50 rounded-lg border">
+                <p class="text-sm text-slate-500 mb-1">Net In-Hand</p>
+                <p class="text-lg font-bold text-emerald-600" id="netMonthly">₹0</p>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                <div class="has-tooltip relative"><span class="text-sm font-medium text-red-700">PF (Employee)</span>
+                </div><span class="font-semibold text-red-600" id="deductPF">- ₹0</span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                <div class="has-tooltip relative"><span class="text-sm font-medium text-red-700">Professional Tax</span>
+                </div><span class="font-semibold text-red-600" id="deductExtras">- ₹0</span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                <div class="has-tooltip relative"><span class="text-sm font-medium text-red-700 cursor-help">Income Tax
+                    + Cess</span><span class="tooltip">Tax + 4% Cess. Rebate applies only to Salary income.</span></div>
+                <span class="font-semibold text-red-600" id="deductTax">- ₹0</span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
+                <div class="has-tooltip relative"><span class="text-sm font-medium text-amber-700">Employer PF +
+                    Gratuity</span></div><span class="font-semibold text-amber-600" id="deductEmployer">- ₹0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center"><span
+              class="text-slate-600 font-bold">2</span></div>
+          <div>
+            <h2 class="section-title">Monthly Expenses</h2>
+            <p class="section-subtitle">Track where your money goes</p>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Total Monthly Expenses (₹)</label>
+            <input type="number" id="expenses" value="" min="0" class="input-field" oninput="calculateAll()">
+          </div>
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-teal-600">NEEDS (Rent, Food)</span>
+              <span class="text-xs font-bold text-rose-600">WANTS (Fun, Dining)</span>
+            </div>
+            <input type="range" id="needsSlider" min="0" max="100" value="60" class="w-full"
+              oninput="updateBudgetComparison()">
+            <div class="flex justify-between mt-1 text-xs text-slate-500">
+              <span id="needsPctLabel">60%</span>
+              <span id="wantsPctLabel">40%</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
+          <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider mb-1">Monthly Surplus</p>
+          <p class="text-3xl font-bold text-emerald-700" id="monthlySurplus">₹0</p>
+          <p class="text-sm text-emerald-600 mt-2">(Income - Expenses - Loan EMIs)</p>
+        </div>
+      </div>
+
+      <div class="card p-5 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center"><span
+              class="text-rose-600 font-bold">3</span></div>
+          <div>
+            <h2 class="section-title">"If I Quit Today" Calculator</h2>
+            <p class="section-subtitle">F&F Settlement Estimate (Approx.)</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Years Worked</label><input type="number"
+              id="yearsWorked" value="3" min="0" step="0.5" class="input-field text-center" oninput="calculateExit()">
+            <p class="text-[10px] text-slate-400 mt-1">Gratuity needs 5+</p>
+          </div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Unused Leaves</label><input type="number"
+              id="leaveDays" value="15" min="0" class="input-field text-center" oninput="calculateExit()"></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Notice (Months)</label><input
+              type="number" id="noticePeriod" value="2" min="0" step="0.5" class="input-field text-center"
+              oninput="calculateExit()"></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Shortfall?</label><select
+              id="noticeShortfall" class="input-field text-center" onchange="calculateExit()">
+              <option value="no">Serving Full</option>
+              <option value="yes">Leaving Early</option>
+            </select></div>
+        </div>
+        <div id="exitResult" class="stat-card">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <p class="text-xs text-slate-500 mb-1">Gratuity</p>
+              <p class="text-lg font-bold" id="valGratuity">₹0</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-slate-500 mb-1">Leave Encashment</p>
+              <p class="text-lg font-bold text-emerald-600" id="valLeave">₹0</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-slate-500 mb-1">EPF Corpus</p>
+              <p class="text-lg font-bold" id="valPF">₹0</p>
+              <p class="text-[10px] text-slate-400">@ 8.25% p.a.</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-slate-500 mb-1">Notice Recovery</p>
+              <p class="text-lg font-bold text-rose-600" id="valNoticeRecovery">₹0</p>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-slate-200 text-center">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Estimated Cash In-Hand</p>
+            <p class="text-3xl font-bold text-indigo-700 mt-1" id="valTotalExit">₹0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center"><span
+              class="text-orange-600 font-bold">4</span></div>
+          <div>
+            <h2 class="section-title">Manage Loans & Debt</h2>
+            <p class="section-subtitle">Plan your path to debt freedom</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 mb-6">
+          <input type="checkbox" id="hasEduLoan" onchange="toggleEduLoan(); calculateAll()"
+            class="w-5 h-5 cursor-pointer accent-orange-600">
+          <label for="hasEduLoan" class="text-sm font-semibold text-slate-700">I have Loans</label>
+        </div>
+        <div id="eduLoanDetails" class="hidden space-y-6">
+          <div class="card p-4">
+            <p class="text-sm font-semibold text-slate-700 mb-3">Loan 1</p>
+            <div class="grid grid-cols-3 gap-3 mb-3">
+              <div><label class="text-xs text-slate-500 mb-1">Amount (₹)</label><input type="number" id="loan1Amount"
+                  min="0" class="input-field text-sm" oninput="calculateAll()"></div>
+              <div><label class="text-xs text-slate-500 mb-1">Interest (%)</label><input type="number" id="loan1Rate"
+                  min="0" step="0.1" class="input-field text-sm" oninput="calculateAll()"></div>
+              <div><label class="text-xs text-slate-500 mb-1">EMI (₹)</label><input type="number" id="loan1Emi" min="0"
+                  class="input-field text-sm" oninput="calculateAll()"></div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-semibold text-orange-600" id="loan1Date">--</p>
+              <p class="text-xs text-orange-400" id="loan1Warning"></p>
+            </div>
+          </div>
+          <div class="card p-4">
+            <p class="text-sm font-semibold text-slate-700 mb-3">Loan 2</p>
+            <div class="grid grid-cols-3 gap-3 mb-3">
+              <div><label class="text-xs text-slate-500 mb-1">Amount (₹)</label><input type="number" id="loan2Amount"
+                  min="0" class="input-field text-sm" oninput="calculateAll()"></div>
+              <div><label class="text-xs text-slate-500 mb-1">Interest (%)</label><input type="number" id="loan2Rate"
+                  min="0" step="0.1" class="input-field text-sm" oninput="calculateAll()"></div>
+              <div><label class="text-xs text-slate-500 mb-1">EMI (₹)</label><input type="number" id="loan2Emi" min="0"
+                  class="input-field text-sm" oninput="calculateAll()"></div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-semibold text-orange-600" id="loan2Date">--</p>
+              <p class="text-xs text-orange-400" id="loan2Warning"></p>
+            </div>
+          </div>
+          <div class="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200">
+            <p class="text-sm font-semibold text-orange-800 text-center mb-2">Total Debt Freedom Date</p>
+            <p class="text-2xl font-bold text-orange-700 text-center" id="totalFreedomDate">--</p>
+            <p class="text-xs text-orange-600 text-center mt-2" id="totalInterestPaid"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <button onclick="toggleAdvanced()" class="btn btn-secondary w-full no-print">
+          <span id="advancedToggleText">Show Advanced Money Tools</span>
+        </button>
+      </div>
+
+      <div id="advancedModules" class="hidden space-y-6">
+        <div class="card p-5">
+          <h3 class="section-title flex items-center gap-2"><span class="text-slate-600">💳</span> Credit Card Trap
+            Detector</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div><label class="block text-sm font-medium mb-2">Credit Limit (₹)</label><input type="number" id="ccLimit"
+                min="0" class="input-field" oninput="updateCCTrap()"></div>
+            <div><label class="block text-sm font-medium mb-2">Monthly Spend</label><input type="number" id="ccSpend"
+                min="0" class="input-field" oninput="updateCCTrap()"></div>
+            <div><label class="block text-sm font-medium mb-2">Pay Minimum?</label><select id="ccMinDue"
+                class="input-field" onchange="updateCCTrap()">
+                <option value="no">No (Pay Full)</option>
+                <option value="yes">Yes (Trap!)</option>
+              </select></div>
+          </div>
+          <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="stat-card p-3">
+              <p class="text-xs text-slate-500">Utilization</p>
+              <p class="text-xl font-bold text-rose-600" id="ccUtil">20%</p>
+            </div>
+            <div class="stat-card p-3">
+              <p class="text-xs text-slate-500">Interest/Year</p>
+              <p class="text-xl font-bold text-rose-600" id="ccInterest">₹0</p>
+            </div>
+            <div class="stat-card p-3">
+              <p class="text-xs text-slate-500">CIBIL Damage</p>
+              <p class="text-xl font-bold text-rose-600" id="ccDamage">Low</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 border-t pt-4">
+            <div><label class="block text-sm font-medium mb-2">First Job?</label><select id="firstJob"
+                class="input-field" onchange="updateCCAdvice()">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select></div>
+            <div><label class="block text-sm font-medium mb-2">Main Spend</label><select id="spendingType"
+                class="input-field" onchange="updateCCAdvice()">
+                <option value="shopping">Shopping</option>
+                <option value="travel">Travel</option>
+                <option value="food">Food</option>
+                <option value="fuel">Fuel</option>
+              </select></div>
+          </div>
+          <p class="text-center mt-4 text-sm font-bold text-indigo-600" id="ccVerdict">Wait 6 months.</p>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="section-title flex items-center gap-2"><span class="text-blue-600">🛡️</span> Insurance Check</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div><label class="block text-sm font-medium mb-2">City Tier</label><select id="cityTierInsurance"
+                class="input-field" onchange="updateHealthInsurance()">
+                <option value="tier1">Tier 1</option>
+                <option value="tier2" selected>Tier 2</option>
+              </select></div>
+            <div><label class="block text-sm font-medium mb-2">Parents Dependent?</label><select id="parentsDependent"
+                class="input-field" onchange="updateHealthInsurance()">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select></div>
+          </div>
+          <div class="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+            <p class="text-xs font-bold text-blue-400 uppercase">Recommended Cover</p>
+            <p class="text-3xl font-extrabold text-blue-700 mt-1" id="recHealthCover">₹5 Lakhs</p>
+            <p class="text-xs text-blue-600 mt-2" id="healthInsuranceReason">Base individual coverage.</p>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="section-title flex items-center gap-2"><span class="text-amber-600">📊</span> Investment Comparator
+          </h3>
+          <div class="grid grid-cols-3 gap-3 mb-6">
+            <div><label class="text-xs text-slate-600">Monthly (₹)</label><input type="number" id="investInput" min="0"
+                class="input-field text-center" oninput="updateComparison()"></div>
+            <div><label class="text-xs text-slate-600">Years</label><input type="number" id="investYears" min="1"
+                value="5" class="input-field text-center" oninput="updateComparison()"></div>
+            <div><label class="text-xs text-slate-600">Step Up %</label><input type="number" id="stepUpRate" min="0"
+                value="10" class="input-field text-center" oninput="updateComparison()"></div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div class="stat-card">
+              <p class="text-xs font-semibold text-slate-500">FD (6.5%)</p>
+              <p class="text-lg font-bold" id="fdCorpus">₹0</p>
+            </div>
+            <div class="stat-card bg-emerald-50">
+              <p class="text-xs font-semibold text-emerald-600">SIP (12%)</p>
+              <p class="text-lg font-bold text-emerald-700" id="sipCorpus">₹0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="section-title flex items-center gap-2"><span class="text-indigo-600">🎯</span> Goal Planning</h3>
+          <p class="text-xs text-slate-500 mb-2">Assumptions: 12% Return, 6% Inflation</p>
+          <div id="goalsContainer" class="space-y-4 mb-4"></div>
+          <button onclick="addNewGoal()" class="btn btn-secondary w-full mb-6">+ Add Goal</button>
+          <div class="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200">
+            <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Required SIP</p>
+            <p class="text-2xl font-bold text-indigo-700 mt-1" id="totalGoalSip">₹0</p>
+            <p class="text-sm text-indigo-600 mt-2" id="goalVerdict">Add goals above</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 no-print">
+        <button onclick="calculate()" class="btn btn-primary w-full text-lg py-4">
+          Show My Complete Financial Plan
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="result" class="hidden fade-in">
+      <div class="text-center mb-8">
+        <span class="badge badge-primary mb-4">YOUR FINANCIAL ANALYSIS</span>
+        <h2 id="verdictTitle" class="text-3xl font-bold text-slate-900 mb-3">You're in Control!</h2>
+        <p id="verdictSub" class="text-lg text-slate-600">Surplus ready to build wealth.</p>
+      </div>
+
+      <div class="card p-5 mb-6">
+        <h3 class="section-title mb-4">Budget Comparison</h3>
+        <div class="space-y-6">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <p class="text-sm font-semibold text-slate-700">Recommended Budget</p>
+              <div class="flex gap-2">
+                <div class="text-center"><label
+                    class="block text-xs font-semibold text-teal-600 mb-1">NEEDS</label><input type="number"
+                    id="recNeedPct" value="50" min="0" class="w-12 p-1 border rounded text-center bg-teal-50"
+                    oninput="updateBudgetComparison()"></div>
+                <div class="text-center"><label
+                    class="block text-xs font-semibold text-rose-600 mb-1">WANTS</label><input type="number"
+                    id="recWantPct" value="30" min="0" class="w-12 p-1 border rounded text-center bg-rose-50"
+                    oninput="updateBudgetComparison()"></div>
+                <div class="text-center"><label
+                    class="block text-xs font-semibold text-emerald-600 mb-1">SAVE</label><input type="number"
+                    id="recSavePct" value="20" class="w-12 p-1 border rounded text-center bg-emerald-50"
+                    oninput="updateBudgetComparison()"></div>
+              </div>
+            </div>
+            <div class="h-4 rounded-full overflow-hidden bg-slate-100 mb-2">
+              <div id="barRecNeed" style="width:50%" class="h-full bg-teal-500 float-left"></div>
+              <div id="barRecWant" style="width:30%" class="h-full bg-rose-500 float-left"></div>
+              <div id="barRecSave" style="width:20%" class="h-full bg-emerald-500 float-left"></div>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-teal-700">Needs: ₹<span id="recNeedAmt">0</span></span>
+              <span class="text-rose-700">Wants: ₹<span id="recWantAmt">0</span></span>
+              <span class="text-emerald-700">Save: ₹<span id="recSaveAmt">0</span></span>
+            </div>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-700 mb-3">Your Actual Spending</p>
+            <div class="h-4 rounded-full overflow-hidden bg-slate-100 mb-2">
+              <div id="barActNeed" class="h-full bg-teal-600 float-left"></div>
+              <div id="barActWant" class="h-full bg-rose-600 float-left"></div>
+              <div id="barActSave" class="h-full bg-emerald-600 float-left"></div>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-teal-700">Needs: ₹<span id="actNeedAmt">0</span></span>
+              <span class="text-rose-700">Wants: ₹<span id="actWantAmt">0</span></span>
+              <span class="text-emerald-700">Save: ₹<span id="actSaveAmt">0</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5 mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+        <h3 class="section-title flex items-center gap-2 mb-4"><span class="text-amber-600">📋</span> Your Immediate
+          Action Plan</h3>
+        <ul id="todoList" class="space-y-3"></ul>
+      </div>
+
+      <div class="card p-6 md:p-8 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+        <div class="text-center">
+          <p class="text-sm font-semibold text-indigo-200 uppercase tracking-wider mb-2">LONG-TERM MILESTONE</p>
+          <h3 class="text-2xl md:text-3xl font-bold mb-4">Your First ₹1 Crore</h3>
+          <p class="text-indigo-200 mb-6">If you start SIP of <span id="recSipAmount"
+              class="font-bold text-white">₹5,000</span> today:</p>
+          <div class="inline-block px-6 py-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+            <span class="text-4xl font-bold">Age <span id="croreAge">--</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-8 no-print">
+        <button onclick="window.location.reload()" class="btn btn-secondary">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Start Over
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6">
+    <div class="max-w-3xl mx-auto px-4 md:px-0 text-center">
+      <p class="text-xs text-slate-500 mb-2">Disclaimer: Based on FY25-26 rules. Includes 4% Cess. Consult a CA.</p>
+    </div>
+  </footer>
+
+  <script>
+    let salaryChartInstance = null;
+    let netInHand = 0;
+    let monthlySurplus = 0;
+    let totalLoanEmi = 0;
+    let advancedOpen = false;
+
+    window.onload = function () {
+      toggleRegimeUI();
+      calculateAll();
+      addNewGoal();
+    };
+
+    // --- CORE FUNCTIONS (FIXED: safeFloat now clamps to >= 0) ---
+    function safeFloat(id) {
+      const val = parseFloat(document.getElementById(id)?.value);
+      return (isNaN(val) || val < 0) ? 0 : val;
+    }
+    function safeInt(id) {
+      const val = parseInt(document.getElementById(id)?.value);
+      return (isNaN(val) || val < 0) ? 0 : val;
+    }
+
+    function calculateAll() {
+      calculateSalary();
+      updateLoanClearance();
+      updateSurplus();
+      updateComparison();
+      updateCCTrap();
+      updateCCAdvice();
+      updateHealthInsurance();
+      updateGoals();
+    }
+
+    // Professional Tax — monthly deduction amount.
+    // Sources: Respective State Finance Acts (verified 2025).
+    function calcProfessionalTax(basic, gross, state) {
+      const g = gross || 0;
+      const isFeb = (new Date().getMonth() + 1) === 2;
+
+      switch (state) {
+        case 'maharashtra':
+          // MH: ≤7500→0; 7501–10000→175/mo; >10000→200/mo (Feb=300 to cap ₹2500/yr)
+          if (g > 10000) return isFeb ? 300 : 200;
+          if (g > 7500)  return 175;
+          return 0;
+
+        case 'karnataka':
+          // KA: threshold revised to ₹25,000/mo (Finance Act 2023)
+          // <25000→0; ≥25000→200/mo (Feb=300 to cap ₹2500/yr)
+          return g >= 25000 ? (isFeb ? 300 : 200) : 0;
+
+        case 'telangana':
+        case 'andhra_pradesh':
+          // TEL/AP: ≤15000→0; 15001–20000→150; >20000→200
+          if (g > 20000) return 200;
+          if (g > 15000) return 150;
+          return 0;
+
+        case 'tamil_nadu':
+          // TN PT is collected HALF-YEARLY (April–Sep, Oct–Mar).
+          // Half-yearly amounts: >75k→1250; >60k→1025; >45k→930; >30k→425; >21k→180; else 0
+          // We return a monthly average (÷6) for CTC calculations.
+          if (g > 75000) return Math.round(1250 / 6);
+          if (g > 60000) return Math.round(1025 / 6);
+          if (g > 45000) return Math.round(930  / 6);
+          if (g > 30000) return Math.round(425  / 6);
+          if (g > 21000) return Math.round(180  / 6);
+          return 0;
+
+        case 'west_bengal':
+          // WB: ≤10000→0; 10001–15000→110; 15001–25000→130; 25001–40000→150; >40000→200
+          if (g > 40000) return 200;
+          if (g > 25000) return 150;
+          if (g > 15000) return 130;
+          if (g > 10000) return 110;
+          return 0;
+
+        case 'gujarat':
+          // Gujarat suspended PT collection (notification 2023)
+          return 0;
+
+        case 'delhi':
+          return 0; // Delhi does not levy PT
+
+        default:
+          // Generic fallback for other states (most use ~₹200/mo above ₹20k)
+          return g > 20000 ? 200 : 0;
+      }
+    }
+
+    function calcTaxNewRegime(income) {
+      let tax = 0;
+      if (income > 400000) tax += (Math.min(income, 800000) - 400000) * 0.05;
+      if (income > 800000) tax += (Math.min(income, 1200000) - 800000) * 0.10;
+      if (income > 1200000) tax += (Math.min(income, 1600000) - 1200000) * 0.15;
+      if (income > 1600000) tax += (Math.min(income, 2000000) - 1600000) * 0.20;
+      if (income > 2000000) tax += (Math.min(income, 2400000) - 2000000) * 0.25;
+      if (income > 2400000) tax += (income - 2400000) * 0.30;
+      // Section 87A: ₹60,000 rebate if taxable income ≤ ₹12L
+      if (income <= 1200000) tax = Math.max(0, tax - 60000);
+      // Marginal relief: tax can't exceed (income - 12L) just above threshold
+      if (income > 1200000 && tax > (income - 1200000)) tax = income - 1200000;
+      // Surcharge (new regime capped at 25%)
+      if (income > 5000000) tax += tax * (income > 20000000 ? 0.25 : (income > 10000000 ? 0.15 : 0.10));
+      return tax;
+    }
+
+    function calcTaxOldRegime(income) {
+      const age = safeInt('ageInput');
+      // Basic exemption limits (Old Regime, FY 2025-26 — unchanged)
+      const slab1 = age >= 80 ? 500000 : (age >= 60 ? 300000 : 250000);
+      let tax = 0;
+      let remaining = income;
+      if (remaining > 1000000) { tax += (remaining - 1000000) * 0.30; remaining = 1000000; }
+      if (remaining > 500000)  { tax += (remaining - 500000)  * 0.20; remaining = 500000; }
+      if (remaining > slab1)   { tax += (remaining - slab1)   * 0.05; }
+
+      // Section 87A: ₹12,500 rebate if taxable income ≤ ₹5L
+      if (income <= 500000) tax = Math.max(0, tax - 12500);
+
+      // Surcharge — Budget 2023 abolished the 37% slab.
+      // Maximum surcharge is NOW 25% for BOTH old and new regimes.
+      // >₹50L but ≤₹1Cr: 10% | >₹1Cr but ≤₹2Cr: 15% | >₹2Cr: 25%
+      if (income > 5000000) {
+        const surchargeRate = income > 20000000 ? 0.25
+                            : income > 10000000 ? 0.15
+                            : 0.10;
+        tax += tax * surchargeRate;
+      }
+      return tax;
+    }
+
+    function calculateSalary() {
+      const ctcLpa = safeFloat('ctc');
+      if (ctcLpa <= 0) { resetSalaryDisplay(); return; }
+      const monthlyCTC = (ctcLpa * 100000) / 12;
+      const basic = monthlyCTC * 0.5;
+      const pfEmployee = basic * 0.12;
+      const pfEmployer = basic * 0.12;
+      const gratuity = basic * 0.0481;
+      const grossMonthly = monthlyCTC - pfEmployer - gratuity;
+      const profTax = calcProfessionalTax(basic, grossMonthly, document.getElementById('stateSelect').value);
+      const annualGross = grossMonthly * 12;
+      const isNewRegime = document.querySelector('input[name="taxRegime"]:checked').value === 'new';
+      let taxableIncome = 0;
+      let hraExemption = 0;
+
+      if (isNewRegime) {
+        taxableIncome = Math.max(0, annualGross - 75000);
+      } else {
+        const userDeductions = safeFloat('oldRegimeDeductions');
+        const monthlyRent = safeFloat('monthlyRent');
+        if (monthlyRent > 0) {
+          const actualHRA = safeFloat('actualHra') || (document.getElementById('cityTier').value === 'tier1' ? basic * 0.5 : basic * 0.4);
+          hraExemption = Math.max(0, Math.min(actualHRA, monthlyRent - (basic * 0.1), (document.getElementById('cityTier').value === 'tier1' ? basic * 0.5 : basic * 0.4))) * 12;
+        }
+        // Section 80E: Education loan interest (no limit)
+        const sec80E_fresher = safeFloat('section80E_fresher');
+        // Section 24(b): Home loan interest (max ₹2L)
+        const sec24_fresher = Math.min(safeFloat('section24_fresher'), 200000);
+        taxableIncome = Math.max(0, annualGross - 50000 - userDeductions - hraExemption - sec80E_fresher - sec24_fresher);
+      }
+
+      document.getElementById('hraAmount').innerText = isNewRegime ? 'N/A' : '₹' + Math.round(hraExemption / 12).toLocaleString('en-IN');
+      let annualTax = Math.round((isNewRegime ? calcTaxNewRegime(taxableIncome) : calcTaxOldRegime(taxableIncome)) * 1.04);
+      netInHand = grossMonthly - pfEmployee - profTax - (annualTax / 12);
+
+      document.getElementById('grossMonthly').innerText = '₹' + Math.round(grossMonthly).toLocaleString('en-IN');
+      document.getElementById('monthlyInHand').innerText = '₹' + Math.round(netInHand).toLocaleString('en-IN');
+      document.getElementById('netMonthly').innerText = '₹' + Math.round(netInHand).toLocaleString('en-IN');
+      document.getElementById('basicSalary').innerText = '₹' + Math.round(basic).toLocaleString('en-IN');
+      document.getElementById('deductPF').innerText = '- ₹' + Math.round(pfEmployee).toLocaleString('en-IN');
+      document.getElementById('deductExtras').innerText = '- ₹' + Math.round(profTax).toLocaleString('en-IN');
+      document.getElementById('deductTax').innerText = '- ₹' + Math.round(annualTax / 12).toLocaleString('en-IN');
+      document.getElementById('deductEmployer').innerText = '- ₹' + Math.round(pfEmployer + gratuity).toLocaleString('en-IN');
+
+      updateChart(netInHand, annualTax / 12, pfEmployee, profTax, pfEmployer + gratuity);
+
+      let altTax = 0;
+      if (isNewRegime) {
+        const altDed = safeFloat('oldRegimeDeductions') || 150000;
+        let altHra = 0;
+        const rent = safeFloat('monthlyRent');
+        if (rent > 0) {
+          const h = (document.getElementById('cityTier').value === 'tier1' ? basic * 0.5 : basic * 0.4);
+          altHra = Math.max(0, Math.min(h, rent - (basic * 0.1), h)) * 12;
+        }
+        altTax = Math.round(calcTaxOldRegime(Math.max(0, annualGross - 50000 - altDed - altHra - safeFloat('section80E_fresher') - Math.min(safeFloat('section24_fresher'), 200000))) * 1.04);
+      } else {
+        altTax = Math.round(calcTaxNewRegime(Math.max(0, annualGross - 75000)) * 1.04);
+      }
+      updateRegimeComparison(annualTax, altTax, isNewRegime);
+    }
+
+    function updateLoanClearance() {
+      const hasLoan = document.getElementById('hasEduLoan').checked;
+      totalLoanEmi = 0;
+      let maxMonths = 0; let totalInterest = 0; let trap = false;
+
+      function processLoan(amtId, rateId, emiId, dateId, warnId) {
+        const p = safeFloat(amtId); const r = safeFloat(rateId); const e = safeFloat(emiId);
+        if (p > 0 && e > 0) {
+          totalLoanEmi += e;
+          const mRate = r / 12 / 100;
+          const mInterest = p * mRate;
+          if (e <= mInterest) {
+            trap = true;
+            if (document.getElementById(dateId)) document.getElementById(dateId).innerText = "NEVER";
+            if (document.getElementById(warnId)) document.getElementById(warnId).innerText = "Trap: EMI < Interest";
+            return 0;
+          }
+          const months = Math.ceil(Math.log(e / (e - mInterest)) / Math.log(1 + mRate));
+          totalInterest += (months * e - p);
+          const d = new Date(); d.setMonth(d.getMonth() + months);
+          if (document.getElementById(dateId)) document.getElementById(dateId).innerText = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+          if (document.getElementById(warnId)) document.getElementById(warnId).innerText = "";
+          return months;
+        }
+        return 0;
+      }
+
+      if (hasLoan) {
+        const m1 = processLoan('loan1Amount', 'loan1Rate', 'loan1Emi', 'loan1Date', 'loan1Warning');
+        const m2 = processLoan('loan2Amount', 'loan2Rate', 'loan2Emi', 'loan2Date', 'loan2Warning');
+        maxMonths = Math.max(m1, m2);
+      }
+
+      if (!hasLoan) {
+        document.getElementById('totalFreedomDate').innerHTML = '--';
+        document.getElementById('totalInterestPaid').innerHTML = '';
+      } else if (trap) {
+        document.getElementById('totalFreedomDate').innerHTML = '<span class="text-red-600">Infinite (Trap)</span>';
+        document.getElementById('totalInterestPaid').innerText = 'Increase EMI immediately.';
+      } else {
+        const d = new Date(); d.setMonth(d.getMonth() + maxMonths);
+        document.getElementById('totalFreedomDate').innerText = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+        document.getElementById('totalInterestPaid').innerText = 'Total Interest: ₹' + Math.round(totalInterest).toLocaleString('en-IN');
+      }
+    }
+
+    function updateComparison() {
+      const monthly = safeFloat('investInput');
+      const years = safeFloat('investYears');
+      const stepUp = safeFloat('stepUpRate');
+      if (years <= 0) return;
+      let fd = 0; const fdRate = 0.065 / 12;
+      for (let i = 0; i < years * 12; i++) fd += monthly * Math.pow(1 + fdRate, (years * 12) - i);
+      let sip = 0; let curr = monthly; const mRate = 0.12 / 12;
+      for (let i = 1; i <= years * 12; i++) {
+        sip = (sip + curr) * (1 + mRate);
+        if (i % 12 === 0) curr *= (1 + stepUp / 100);
+      }
+      document.getElementById('fdCorpus').innerText = '₹' + Math.round(fd).toLocaleString('en-IN');
+      document.getElementById('sipCorpus').innerText = '₹' + Math.round(sip).toLocaleString('en-IN');
+    }
+
+    function updateSurplus() {
+      const expenses = safeFloat('expenses');
+      monthlySurplus = Math.max(0, netInHand - expenses - totalLoanEmi);
+      document.getElementById('monthlySurplus').innerText = '₹' + Math.round(monthlySurplus).toLocaleString('en-IN');
+      if (document.getElementById('investInput').value === '') {
+        document.getElementById('investInput').value = Math.round(monthlySurplus);
+        updateComparison();
+      }
+      updateBudgetComparison();
+    }
+
+    function updateBudgetComparison() {
+      // FIXED: Use Slider Input
+      const needsPct = safeInt('needsSlider');
+      document.getElementById('needsPctLabel').innerText = needsPct + '%';
+      document.getElementById('wantsPctLabel').innerText = (100 - needsPct) + '%';
+
+      const exp = safeFloat('expenses');
+      const totalLoan = totalLoanEmi;
+
+      // Needs = (Expenses * slider%) + Loans
+      const actNeed = Math.round(exp * (needsPct / 100)) + Math.round(totalLoan);
+      // Wants = Expenses * (100-slider%)
+      const actWant = Math.round(exp * ((100 - needsPct) / 100));
+      const actSave = Math.round(monthlySurplus);
+      const total = actNeed + actWant + actSave;
+
+      if (total > 0) {
+        document.getElementById('actNeedAmt').innerText = actNeed.toLocaleString('en-IN');
+        document.getElementById('actWantAmt').innerText = actWant.toLocaleString('en-IN');
+        document.getElementById('actSaveAmt').innerText = actSave.toLocaleString('en-IN');
+        document.getElementById('barActNeed').style.width = (actNeed / total * 100) + '%';
+        document.getElementById('barActWant').style.width = (actWant / total * 100) + '%';
+        document.getElementById('barActSave').style.width = (actSave / total * 100) + '%';
+      }
+
+      // Recommended (Static 50/30/20)
+      const net = Math.round(netInHand);
+      if (net > 0) {
+        let pNeed = safeInt('recNeedPct') || 50;
+        let pWant = safeInt('recWantPct') || 30;
+        let pSave = 100 - pNeed - pWant;
+        document.getElementById('recSavePct').value = pSave;
+        document.getElementById('recNeedAmt').innerText = Math.round(net * pNeed / 100).toLocaleString('en-IN');
+        document.getElementById('recWantAmt').innerText = Math.round(net * pWant / 100).toLocaleString('en-IN');
+        document.getElementById('recSaveAmt').innerText = Math.round(net * pSave / 100).toLocaleString('en-IN');
+        document.getElementById('barRecNeed').style.width = pNeed + '%';
+        document.getElementById('barRecWant').style.width = pWant + '%';
+        document.getElementById('barRecSave').style.width = pSave + '%';
+      }
+    }
+
+    function updateRegimeComparison(curr, alt, isNew) {
+      const el = document.getElementById('regimeComparison');
+      const diff = Math.round(alt - curr);
+      if (Math.abs(diff) < 500) { el.classList.add('hidden'); return; }
+      el.classList.remove('hidden');
+      document.getElementById('regimeAdvice').innerHTML = diff > 0 ?
+        `✅ Saving ₹${diff.toLocaleString('en-IN')}/yr with current selection.` :
+        `🛑 Switch regime to save ₹${Math.abs(diff).toLocaleString('en-IN')}/yr.`;
+    }
+
+    function updateCCTrap() {
+      const limit = safeFloat('ccLimit') || 1;
+      const spend = safeFloat('ccSpend');
+      const util = Math.min(100, Math.round((spend / limit) * 100));
+      document.getElementById('ccUtil').innerText = util + '%';
+      let interest = document.getElementById('ccMinDue').value === 'yes' ? (spend * 0.75 * 0.42) : 0;
+      document.getElementById('ccInterest').innerText = '₹' + Math.round(interest).toLocaleString('en-IN');
+      document.getElementById('ccDamage').innerText = (util > 30 || document.getElementById('ccMinDue').value === 'yes') ? 'High' : 'Low';
+    }
+
+    function updateHealthInsurance() {
+      const city = document.getElementById('cityTierInsurance').value;
+      const parents = document.getElementById('parentsDependent').value === 'yes';
+      const age = safeInt('ageInput');
+      // FIXED: Age Logic
+      let base = (city === 'tier1' ? 10 : 5);
+      if (age > 40) base += 5; // Increase base for age
+      if (parents) base += (city === 'tier1' ? 10 : 5);
+
+      document.getElementById('recHealthCover').innerText = '₹' + base + ' Lakhs';
+      document.getElementById('healthInsuranceReason').innerText = age > 40 ? "Higher base cover due to age 40+." : "Base individual coverage.";
+    }
+
+    function updateCCAdvice() {
+      const first = document.getElementById('firstJob').value === 'yes';
+      let verdict = 'Wait 6 months';
+      if (!first) {
+        const type = document.getElementById('spendingType').value;
+        if (type === 'travel') verdict = 'Axis Atlas / Amex';
+        else if (type === 'shopping') verdict = 'Amazon ICICI / SBI Cashback';
+        else if (type === 'food') verdict = 'HDFC Swiggy / HSBC Live+';
+        else if (type === 'fuel') verdict = 'SBI BPCL Octane';
+      }
+      document.getElementById('ccVerdict').innerText = verdict;
+    }
+
+    function addNewGoal() {
+      const div = document.createElement('div');
+      div.className = 'grid grid-cols-3 gap-2 mb-2 bg-slate-50 p-2 rounded';
+      div.innerHTML = `<input type="text" placeholder="Goal Name" class="input-field text-xs"><input type="number" placeholder="Cost" min="0" class="input-field text-xs goal-amt" oninput="updateGoals()"><input type="number" placeholder="Yrs" min="1" class="input-field text-xs goal-years" oninput="updateGoals()">`;
+      document.getElementById('goalsContainer').appendChild(div);
+    }
+
+    function updateGoals() {
+      let total = 0;
+      document.querySelectorAll('.goal-amt').forEach((el, i) => {
+        const cost = parseFloat(el.value) || 0;
+        const yrs = parseFloat(document.querySelectorAll('.goal-years')[i].value) || 1;
+        if (cost > 0) total += (cost * Math.pow(1.06, yrs) * (0.12 / 12)) / (Math.pow(1.12 / 12, yrs * 12) - 1);
+      });
+      document.getElementById('totalGoalSip').innerText = '₹' + Math.round(Math.abs(total)).toLocaleString('en-IN');
+    }
+
+    function calculateExit() {
+      // FIXED: Compounding PF
+      const basicMonthly = (safeFloat('ctc') * 100000 / 12) * 0.5;
+      const yrs = safeFloat('yearsWorked');
+
+      // Gratuity
+      const grat = yrs >= 5 ? (15 / 26) * basicMonthly * yrs : 0;
+
+      // PF Future Value (Monthly Contribution ~8.25% p.a.)
+      const pfMonthly = basicMonthly * 0.24;
+      const r = 0.0825 / 12;
+      const n = yrs * 12;
+      const pfCorpus = n > 0 ? pfMonthly * ((Math.pow(1 + r, n) - 1) / r) * (1 + r) : 0;
+
+      // Leave Encashment
+      const leave = (basicMonthly / 30) * safeFloat('leaveDays');
+
+      // FIXED: Recovery on Gross
+      const grossMonthly = safeFloat('grossMonthly');
+      const rec = document.getElementById('noticeShortfall').value === 'yes' ? (grossMonthly * safeFloat('noticePeriod')) : 0;
+
+      document.getElementById('valGratuity').innerText = '₹' + Math.round(grat).toLocaleString('en-IN');
+      document.getElementById('valLeave').innerText = '₹' + Math.round(leave).toLocaleString('en-IN');
+      document.getElementById('valPF').innerText = '₹' + Math.round(pfCorpus).toLocaleString('en-IN');
+      document.getElementById('valNoticeRecovery').innerText = '-₹' + Math.round(rec).toLocaleString('en-IN');
+      document.getElementById('valTotalExit').innerText = '₹' + Math.round(Math.max(0, grat + leave + pfCorpus - rec)).toLocaleString('en-IN');
+    }
+
+    function calculate() {
+      document.getElementById('result').classList.remove('hidden');
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      const items = [];
+      if (monthlySurplus <= 0) items.push("🚨 Expenses exceed Income. Reduce wants immediately.");
+      else if (monthlySurplus < netInHand * 0.2) items.push("⚠️ Savings rate is low (<20%). Boost it.");
+      if (document.getElementById('hasEduLoan').checked) items.push("📉 Prioritize clearing high-interest debt.");
+      items.push("💰 Ensure you have 6 months expenses in Emergency Fund.");
+      document.getElementById('todoList').innerHTML = items.map(i => `<li class="bg-white p-2 rounded border border-slate-200 text-sm">${i}</li>`).join('');
+
+      let corpus = 0; let sip = safeFloat('recSipAmount') || 5000;
+      let yrs = 0;
+      while (corpus < 10000000 && yrs < 50) {
+        corpus = (corpus + sip * 12) * 1.12;
+        sip *= 1.10;
+        yrs++;
+      }
+      document.getElementById('croreAge').innerText = (safeInt('ageInput') + yrs);
+      document.getElementById('recSipAmount').innerText = '₹' + Math.round(monthlySurplus * 0.2).toLocaleString('en-IN');
+    }
+
+    function updateChart(inHand, tax, pf, profTax, other) {
+      const ctx = document.getElementById('salaryChart').getContext('2d');
+      if (salaryChartInstance) salaryChartInstance.destroy();
+      if (inHand <= 0) return;
+      salaryChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: ['In-Hand', 'Tax', 'PF', 'Prof Tax', 'Employer'], datasets: [{ data: [inHand, tax, pf, profTax, other], backgroundColor: ['#4f46e5', '#ef4444', '#f59e0b', '#94a3b8', '#10b981'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
+      });
+    }
+
+    function resetSalaryDisplay() {
+      document.getElementById('monthlyInHand').innerText = '₹0';
+      if (salaryChartInstance) salaryChartInstance.destroy();
+    }
+    function toggleBreakdown() { document.getElementById('salaryBreakdown').classList.toggle('hidden'); }
+    function toggleEduLoan() { document.getElementById('eduLoanDetails').classList.toggle('hidden'); calculateAll(); }
+    function toggleAdvanced() { document.getElementById('advancedModules').classList.toggle('hidden'); }
+    function toggleRegimeUI() {
+      const isOld = document.querySelector('input[name="taxRegime"]:checked').value === 'old';
+      document.getElementById('oldRegimeInputs').classList.toggle('hidden', !isOld);
+    }
+  </script>
+</body>
+
+</html>

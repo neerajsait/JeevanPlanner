@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net;
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                   font-src https://fonts.gstatic.com;
+                   img-src 'self' data:;
+                   connect-src 'none';">
+    <title>JeevanPlanner - Student Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .tooltip { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+        .has-tooltip:hover .tooltip { visibility: visible; opacity: 1; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-[Inter]">
+
+    <nav class="bg-white shadow-sm p-4 sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-indigo-700">&#127470;&#127475; Jeevan<span class="text-slate-500 font-light">Planner</span> - Student &#127891;</h1>
+            <a href="index.html" class="text-xs text-slate-500 hover:text-indigo-600 transition-colors">&larr; Back</a>
+        </div>
+    </nav>
+
+    <div class="max-w-3xl mx-auto p-4 md:p-8">
+
+        <div class="text-center py-6">
+            <h2 class="text-2xl font-bold mb-2">Your Financial Foundation Starts Now</h2>
+            <p class="text-slate-500 text-sm">Even with pocket money, habits built today = crores tomorrow.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-100 space-y-6">
+
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase" for="age">Current Age</label>
+                <input type="number" id="age" value="20" min="13" max="30"
+                       class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-blue-900 mb-1" for="income">Monthly Pocket Money / Allowance (&#8377;)</label>
+                <input type="number" id="income" value="5000" min="0" max="1000000"
+                       class="w-full p-3 border rounded-lg" oninput="updateSurplus()">
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2" for="expenses">Monthly Expenses (&#8377;)</label>
+                <input type="number" id="expenses" value="4000" min="0" max="1000000"
+                       class="w-full p-3 border rounded-lg" oninput="updateSurplus()">
+                <p class="text-xs text-slate-400 mt-2">Food, travel, recharge, fun.</p>
+                <div class="mt-4 p-3 bg-green-50 rounded-lg text-center">
+                    <p class="text-xs text-green-600 uppercase font-bold">Monthly Surplus</p>
+                    <p class="text-xl font-bold text-green-700" id="monthlySurplus">&#8377;0</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-purple-50 p-6 rounded-2xl border border-purple-100">
+                    <h3 class="font-bold text-purple-900 mb-4">&#127919; Short-Term Goal</h3>
+                    <input type="text" id="goalName" placeholder="e.g. Laptop, Course" maxlength="50"
+                           class="w-full p-2 text-sm border rounded mb-2">
+                    <input type="number" id="goalCost" placeholder="Cost (&#8377;)" min="0" max="10000000"
+                           class="w-full p-2 text-sm border rounded mb-2">
+                    <input type="number" id="goalMonths" placeholder="Months" min="1" max="120"
+                           class="w-full p-2 text-sm border rounded mb-3">
+                    <button onclick="calculateGoal()" class="w-full bg-purple-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-purple-700 transition-colors">Check</button>
+                    <p class="text-xs text-red-500 mt-2 font-bold hidden" id="goalWarning" aria-live="polite"></p>
+                    <p class="text-xs text-green-600 mt-2 font-bold hidden" id="goalSuccess" aria-live="polite"></p>
+                </div>
+
+                <div class="bg-slate-800 text-white p-6 rounded-2xl">
+                    <h3 class="font-bold mb-4">Your Starter Advice</h3>
+                    <div class="space-y-4 text-sm">
+                        <div>&#128218; <strong>Best Investment:</strong> Skills &amp; online courses</div>
+                        <div>&#128176; <strong>Save First:</strong> &#8377;500&ndash;1000/mo in RD</div>
+                        <div>&#128683; <strong>Avoid:</strong> Credit cards &amp; loans</div>
+                        <div>&#128200; <strong>Future SIP:</strong> Start small after job</div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="calculate()"
+                    class="mt-8 w-full bg-slate-900 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-slate-800 transition">
+                Show My Student Plan &rarr;
+            </button>
+        </div>
+
+        <div id="result" class="hidden mt-12">
+            <div class="text-center mb-8">
+                <h2 id="verdictTitle" class="text-3xl font-extrabold text-slate-800">...</h2>
+                <p id="verdictSub" class="text-slate-500 mt-2 text-sm">...</p>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-200 p-6 rounded-xl mb-6">
+                <h3 class="font-bold text-yellow-900 text-lg mb-4">Your Action Plan</h3>
+                <ul id="todoList" class="space-y-3 text-sm text-slate-700"></ul>
+            </div>
+
+            <div class="bg-indigo-900 text-white p-6 rounded-xl text-center">
+                <h3 class="text-2xl font-bold mt-2">First &#8377;1 Crore Projection</h3>
+                <p class="mt-2 text-indigo-200 text-sm">If you start &#8377;1000 SIP after college (10% step-up):</p>
+                <div class="mt-4 text-4xl font-bold">Age <span id="croreAge">--</span></div>
+                <p class="mt-4 text-xs text-slate-400">12% annualised return assumed. Equity SIPs carry market risk.</p>
+            </div>
+        </div>
+
+        <div class="mt-10 border-t pt-4 text-center text-xs text-slate-400">
+            <p>Made with &#10084;&#65039; for Indian students. Build habits early!</p>
+            <p class="mt-1">Educational tool only &mdash; not financial advice.</p>
+        </div>
+    </div>
+
+    <script>
+        const MAX_VAL = 1e7; // 1 crore cap for inputs
+        let netInHand = 0;
+
+        // Safe parser: clamps 0 to MAX_VAL
+        function safeNum(id) {
+            const val = parseFloat(document.getElementById(id)?.value) || 0;
+            return Math.max(0, Math.min(val, MAX_VAL));
+        }
+
+        function updateSurplus() {
+            netInHand = safeNum('income');
+            const expenses = safeNum('expenses');
+            const surplus = Math.max(0, netInHand - expenses);
+            document.getElementById('monthlySurplus').textContent = '₹' + surplus.toLocaleString('en-IN');
+        }
+
+        function calculateGoal() {
+            const cost    = safeNum('goalCost');
+            const months  = Math.max(1, Math.min(safeNum('goalMonths'), 120));
+            const surplus = Math.max(0, netInHand - safeNum('expenses'));
+            const needed  = months > 0 ? cost / months : 0;
+            const warn    = document.getElementById('goalWarning');
+            const success = document.getElementById('goalSuccess');
+
+            warn.classList.add('hidden');
+            success.classList.add('hidden');
+
+            if (cost <= 0 || months <= 0) return;
+
+            if (needed > surplus) {
+                warn.textContent = `Need ₹${Math.round(needed).toLocaleString('en-IN')}/mo — extend time or cut spending!`;
+                warn.classList.remove('hidden');
+            } else {
+                success.textContent = `Possible! Save ₹${Math.round(needed).toLocaleString('en-IN')}/mo.`;
+                success.classList.remove('hidden');
+            }
+        }
+
+        function calculate() {
+            const income   = netInHand;
+            const expenses = safeNum('expenses');
+            const age      = Math.min(Math.max(parseInt(document.getElementById('age')?.value) || 20, 13), 30);
+
+            document.getElementById('verdictTitle').textContent =
+                income >= expenses ? "You're Building Habits!" : "Track Every Rupee";
+            document.getElementById('verdictSub').textContent =
+                income >= expenses ? "Great start — keep saving small." : "Reduce spending to build surplus.";
+
+            const todoList = document.getElementById('todoList');
+            todoList.innerHTML = '';
+            const items = [
+                "📚 Invest in skills (courses, books) — best ROI now",
+                "💰 Start RD of ₹500–1000/month for discipline",
+                "🚫 Avoid credit cards and loans completely",
+                "📊 Track every expense — awareness is power"
+            ];
+            items.forEach(i => {
+                const li = document.createElement('li');
+                li.className = 'flex gap-2 items-start';
+                // Safe: items are hardcoded strings, no user input
+                li.textContent = i;
+                todoList.appendChild(li);
+            });
+
+            // SIP projection: ₹1000/mo, 10% step-up, 12% return
+            let corpus = 0;
+            let curAge = age + 3;
+            let monthlyInv = 1000;
+            let guard = 0;
+            while (corpus < 10000000 && curAge < 80 && guard < 60) {
+                curAge++;
+                guard++;
+                for (let m = 0; m < 12; m++) {
+                    corpus = (corpus + monthlyInv) * (1 + 0.12 / 12);
+                }
+                monthlyInv *= 1.10;
+            }
+            document.getElementById('croreAge').textContent = curAge;
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.onload = updateSurplus;
+    </script>
+</body>
+</html>

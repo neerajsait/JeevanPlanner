@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data:;
+                   connect-src 'none';">
+    <title>Deal Stash | Smart Price Tracker</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --accent: #facc15;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: #334155;
+            --muted: #64748b;
+            --google-blue: #4285F4;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column;
+            align-items: center; min-height: 100vh;
+        }
+        .container { width: 100%; max-width: 800px; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: var(--muted); font-size: 0.9rem; margin-bottom: 30px; }
+        .highlight { color: var(--accent); }
+        .controls-area {
+            display: flex; gap: 10px;
+            margin-bottom: 20px; justify-content: flex-end;
+        }
+        .btn-sm {
+            background: var(--card-bg); border: 1px solid var(--border);
+            color: var(--text); padding: 5px 10px;
+            border-radius: 4px; cursor: pointer; font-size: 0.8rem;
+        }
+        .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+        .input-group {
+            background: var(--card-bg); padding: 20px;
+            border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex; gap: 10px;
+            margin-bottom: 30px; border: 1px solid var(--border);
+        }
+        input[type="text"] {
+            flex-grow: 1; padding: 12px;
+            border-radius: 6px; border: 1px solid var(--border);
+            background: #0f172a; color: white; font-size: 16px;
+        }
+        button.primary {
+            background: var(--accent); color: #000;
+            font-weight: bold; border: none;
+            padding: 12px 24px; border-radius: 6px;
+            cursor: pointer; transition: transform 0.1s;
+        }
+        button.primary:active { transform: scale(0.98); }
+        #wishlist { display: flex; flex-direction: column; gap: 20px; }
+        .product-card {
+            background: var(--card-bg); border-radius: 12px;
+            padding: 20px; border: 1px solid var(--border);
+            animation: fadeIn 0.3s ease; transition: border-color 0.2s;
+        }
+        .product-card.checking { border-color: var(--google-blue); }
+        .card-header {
+            display: flex; justify-content: space-between;
+            align-items: start; margin-bottom: 15px;
+        }
+        .product-title {
+            font-size: 1.2rem; font-weight: bold;
+            color: white; text-decoration: none;
+            display: block; margin-bottom: 4px;
+        }
+        .product-title:hover { color: var(--accent); }
+        .domain-tag {
+            font-size: 0.75rem; background: #334155;
+            padding: 2px 6px; border-radius: 4px;
+            color: #cbd5e1; text-transform: uppercase;
+        }
+        .deal-section {
+            background: #0f172a; padding: 15px;
+            border-radius: 8px; border: 1px dashed var(--border);
+        }
+        .deal-status {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 12px;
+        }
+        .btn-compare {
+            background: var(--card-bg); color: var(--google-blue);
+            border: 1px solid var(--google-blue);
+            padding: 8px 16px; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+            text-decoration: none; font-size: 0.9rem;
+            display: inline-flex; align-items: center;
+            gap: 8px; transition: background 0.2s;
+        }
+        .btn-compare:hover { background: rgba(66, 133, 244, 0.1); }
+        .deal-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 10px;
+        }
+        .deal-inputs input {
+            padding: 8px; border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #1e293b; color: white; width: 100%;
+        }
+        .btn-save {
+            background: var(--success); color: white;
+            border: none; padding: 0 20px;
+            border-radius: 4px; cursor: pointer;
+        }
+        .locked-deal { display: flex; gap: 20px; align-items: center; justify-content: space-between; }
+        .stat-box { text-align: center; }
+        .stat-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; }
+        .stat-val { font-size: 1.1rem; font-weight: bold; color: var(--success); }
+        .stat-val.store { color: var(--accent); }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; opacity: 0.7; }
+        .btn-icon:hover { opacity: 1; }
+        .empty-state { text-align: center; color: #64748b; margin-top: 50px; }
+        .toast {
+            position: fixed; bottom: 24px; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b; color: #e2e8f0;
+            border: 1px solid var(--border);
+            padding: 12px 24px; border-radius: 8px;
+            font-size: 0.9rem; transition: transform 0.3s ease;
+            z-index: 9999;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Deal <span class="highlight">Stash</span></h1>
+    <p class="subtitle">Stop hoarding tabs. Start making decisions.</p>
+
+    <div class="input-group">
+        <input type="text" id="productUrl" placeholder="Paste Amazon / Flipkart / Myntra link..."
+               autocomplete="off" maxlength="2048" aria-label="Product URL">
+        <button class="primary" onclick="addLink()">Find Deal</button>
+    </div>
+
+    <div class="controls-area" id="controls" style="display:none;">
+        <button class="btn-sm" onclick="sortList('price')">Sort: Price &#9661;</button>
+        <button class="btn-sm" onclick="sortList('cashback')">Sort: Cashback &#9651;</button>
+        <button class="btn-sm" onclick="confirmClearAll()" style="color:var(--danger);border-color:var(--danger)">Clear All</button>
+    </div>
+
+    <div id="wishlist"></div>
+</div>
+
+<!-- Toast notification (replaces alert/confirm for non-destructive messages) -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+    'use strict';
+
+    const DB_KEY = 'dealstash_v3';
+    const URL_BLACKLIST = ['dp', 'gp', 'product', 'ref', 'p', 'itm', 'catalog', 'search', 'buy'];
+    const ALLOWED_PROTOCOLS = ['http:', 'https:'];
+
+    // ─── SECURITY HELPERS ────────────────────────────────────────────────────
+
+    /** Escape HTML to prevent XSS when injecting into innerHTML */
+    function escapeHtml(str) {
+        if (typeof str !== 'string') return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    /** Validate URL — only allow http/https; block javascript: and data: */
+    function safeUrl(rawUrl) {
+        try {
+            const u = new URL(rawUrl);
+            return ALLOWED_PROTOCOLS.includes(u.protocol) ? rawUrl : null;
+        } catch {
+            return null;
+        }
+    }
+
+    /** Build a Google Shopping search URL (safe — uses encodeURIComponent) */
+    function buildSearchUrl(query) {
+        return 'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(query);
+    }
+
+    // ─── TOAST (replaces alert/confirm for non-destructive messages) ─────────
+
+    let toastTimer;
+    function showToast(msg, duration = 3000) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+    }
+
+    // ─── INITIALIZATION ───────────────────────────────────────────────────────
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Re-validate stored URLs on load to catch any stale malicious data
+        const list = getWishlist();
+        const sanitised = list.filter(item => safeUrl(item.originalLink) !== null);
+        if (sanitised.length !== list.length) saveWishlist(sanitised);
+        renderWishlist();
+    });
+
+    // ─── ADD LOGIC ────────────────────────────────────────────────────────────
+
+    function addLink() {
+        const urlInput = document.getElementById('productUrl');
+        const rawUrl   = urlInput.value.trim();
+
+        if (!rawUrl) return;
+
+        // Validate protocol
+        const validUrl = safeUrl(rawUrl);
+        if (!validUrl) {
+            showToast('⚠️ Only http/https links are accepted.');
+            urlInput.value = '';
+            return;
+        }
+
+        // Duplicate check
+        const currentList = getWishlist();
+        if (currentList.some(item => item.originalLink === validUrl)) {
+            showToast('⚠️ Already stashed. Check the list below.');
+            urlInput.value = '';
+            return;
+        }
+
+        // Max list size guard
+        if (currentList.length >= 50) {
+            showToast('⚠️ List full (50 items). Delete some first.');
+            return;
+        }
+
+        // Extract product name from URL (sanitised)
+        let predictedName = 'Mystery Product';
+        let domain        = 'Unknown';
+
+        try {
+            const urlObj  = new URL(validUrl);
+            domain = urlObj.hostname.replace('www.', '').split('.')[0];
+
+            const segments = urlObj.pathname.split('/')
+                .filter(s => s.length > 4 && !URL_BLACKLIST.includes(s.toLowerCase()));
+
+            if (segments.length > 0) {
+                const likelyName = segments.sort((a, b) => b.length - a.length)[0];
+                predictedName = likelyName
+                    .replace(/-|\+/g, ' ')
+                    .substring(0, 60)
+                    .replace(/\b\w/g, l => l.toUpperCase());
+            }
+        } catch { /* ignore parse errors */ }
+
+        // Sanitise extracted values before storing
+        const safeName   = escapeHtml(predictedName).substring(0, 80);
+        const safeDomain = escapeHtml(domain).substring(0, 30);
+
+        const newItem = {
+            id:              Date.now().toString(),
+            name:            safeName,
+            domain:          safeDomain,
+            originalLink:    validUrl,          // already validated
+            searchQuery:     predictedName,     // raw for search query
+            addedAt:         new Date().toISOString(),
+            isChecking:      false,
+            flashDeal: { bestPrice: '', store: '', cashback: '', isLocked: false }
+        };
+
+        currentList.unshift(newItem);
+        saveWishlist(currentList);
+        urlInput.value = '';
+        renderWishlist();
+    }
+
+    // ─── RENDERER ────────────────────────────────────────────────────────────
+
+    function renderWishlist() {
+        const listEl   = document.getElementById('wishlist');
+        const data     = getWishlist();
+        const controls = document.getElementById('controls');
+
+        listEl.innerHTML = '';
+        controls.style.display = data.length > 0 ? 'flex' : 'none';
+
+        if (data.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'empty-state';
+            empty.innerHTML = '<h3>Clean Slate.</h3><p>Paste a link to start tracking.</p>';
+            listEl.appendChild(empty);
+            return;
+        }
+
+        data.forEach(item => {
+            const validatedHref = safeUrl(item.originalLink) || '#'; // belt-and-braces
+            const isLocked      = item.flashDeal.isLocked;
+            const isChecking    = item.isChecking;
+
+            const card = document.createElement('div');
+            card.className = `product-card${isChecking && !isLocked ? ' checking' : ''}`;
+
+            // Header — all values pre-escaped on save; use textContent for title
+            const header = document.createElement('div');
+            header.className = 'card-header';
+
+            const titleWrap  = document.createElement('div');
+            const titleLink  = document.createElement('a');
+            titleLink.href   = validatedHref;
+            titleLink.target = '_blank';
+            titleLink.rel    = 'noopener noreferrer';
+            titleLink.className = 'product-title';
+            titleLink.textContent = item.name + ' ↗';   // textContent = XSS safe
+
+            const domainTag = document.createElement('span');
+            domainTag.className = 'domain-tag';
+            domainTag.textContent = item.domain;
+
+            titleWrap.appendChild(titleLink);
+            titleWrap.appendChild(domainTag);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className  = 'btn-icon';
+            deleteBtn.style.color = 'var(--danger)';
+            deleteBtn.title       = 'Remove';
+            deleteBtn.textContent = '✕';
+            deleteBtn.addEventListener('click', () => removeItem(item.id));
+
+            header.appendChild(titleWrap);
+            header.appendChild(deleteBtn);
+
+            // Deal section
+            const dealSection = document.createElement('div');
+            dealSection.className = 'deal-section';
+
+            if (isLocked) {
+                dealSection.innerHTML = `
+                    <div class="locked-deal">
+                        <div class="stat-box">
+                            <div class="stat-label">Price</div>
+                            <div class="stat-val">₹${escapeHtml(item.flashDeal.bestPrice)}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Store</div>
+                            <div class="stat-val store">${escapeHtml(item.flashDeal.store)}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Cashback</div>
+                            <div class="stat-val">+ ${escapeHtml(item.flashDeal.cashback)}</div>
+                        </div>
+                    </div>
+                `;
+                const editBtn = document.createElement('button');
+                editBtn.className   = 'btn-icon';
+                editBtn.textContent = '✏️';
+                editBtn.title       = 'Edit';
+                editBtn.style.marginLeft = '8px';
+                editBtn.addEventListener('click', () => toggleLock(item.id, false));
+                dealSection.querySelector('.locked-deal').appendChild(editBtn);
+            } else {
+                const statusText = isChecking
+                    ? `<span style="color:var(--google-blue)">Checking prices...</span>`
+                    : `<span style="color:var(--muted)">1. Compare prices</span>`;
+
+                const searchUrl = buildSearchUrl(item.searchQuery);
+
+                const statusRow = document.createElement('div');
+                statusRow.className = 'deal-status';
+                statusRow.innerHTML = statusText; // safe: status is hardcoded string
+
+                const compareLink  = document.createElement('a');
+                compareLink.href   = searchUrl;          // safe: built with encodeURIComponent
+                compareLink.target = '_blank';
+                compareLink.rel    = 'noopener noreferrer';
+                compareLink.className = 'btn-compare';
+                compareLink.innerHTML = '🔍 Compare Prices';
+                compareLink.addEventListener('click', () => markChecking(item.id));
+
+                statusRow.appendChild(compareLink);
+                dealSection.appendChild(statusRow);
+
+                // Input grid
+                const grid = document.createElement('div');
+                grid.className = 'deal-inputs';
+
+                const priceInput = document.createElement('input');
+                priceInput.type  = 'number';
+                priceInput.value = item.flashDeal.bestPrice;
+                priceInput.placeholder = 'Price (₹)';
+                priceInput.min   = '0';
+                priceInput.max   = '10000000';
+                priceInput.addEventListener('blur', () =>
+                    draftSave(item.id, 'bestPrice', priceInput.value));
+
+                const storeInput = document.createElement('input');
+                storeInput.type  = 'text';
+                storeInput.value = item.flashDeal.store;
+                storeInput.placeholder = 'Store';
+                storeInput.maxLength   = 50;
+                storeInput.addEventListener('blur', () =>
+                    draftSave(item.id, 'store', storeInput.value));
+
+                const cashbackInput = document.createElement('input');
+                cashbackInput.type  = 'text';
+                cashbackInput.value = item.flashDeal.cashback;
+                cashbackInput.placeholder = 'Cashback';
+                cashbackInput.maxLength   = 20;
+                cashbackInput.addEventListener('blur', () =>
+                    draftSave(item.id, 'cashback', cashbackInput.value));
+
+                const saveBtn = document.createElement('button');
+                saveBtn.className   = 'btn-save';
+                saveBtn.textContent = 'Save';
+                saveBtn.addEventListener('click', () => toggleLock(item.id, true));
+
+                grid.appendChild(priceInput);
+                grid.appendChild(storeInput);
+                grid.appendChild(cashbackInput);
+                grid.appendChild(saveBtn);
+                dealSection.appendChild(grid);
+            }
+
+            card.appendChild(header);
+            card.appendChild(dealSection);
+            listEl.appendChild(card);
+        });
+    }
+
+    // ─── STATE ACTIONS ────────────────────────────────────────────────────────
+
+    function markChecking(id) {
+        const list = getWishlist();
+        const item = list.find(x => x.id === id);
+        if (item) {
+            item.isChecking = true;
+            saveWishlist(list);
+            renderWishlist();
+        }
+    }
+
+    function draftSave(id, field, value) {
+        // Whitelist allowed fields to prevent prototype pollution
+        const allowedFields = ['bestPrice', 'store', 'cashback'];
+        if (!allowedFields.includes(field)) return;
+        const list = getWishlist();
+        const item = list.find(x => x.id === id);
+        if (item) {
+            item.flashDeal[field] = value;
+            saveWishlist(list);
+        }
+    }
+
+    function toggleLock(id, lockState) {
+        const list = getWishlist();
+        const item = list.find(x => x.id === id);
+        if (!item) return;
+        if (lockState && (!item.flashDeal.bestPrice || !item.flashDeal.store)) {
+            showToast('⚠️ Enter a price and store before saving.');
+            return;
+        }
+        item.flashDeal.isLocked = lockState;
+        if (lockState) item.isChecking = false;
+        saveWishlist(list);
+        renderWishlist();
+    }
+
+    // ─── STORAGE HELPERS ─────────────────────────────────────────────────────
+
+    function getWishlist() {
+        try {
+            return JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+        } catch {
+            return [];
+        }
+    }
+
+    function saveWishlist(data) {
+        try {
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+        } catch {
+            showToast('⚠️ Storage full — delete some items.');
+        }
+    }
+
+    function removeItem(id) {
+        // Custom confirm dialog using toast + action
+        const container = document.createElement('div');
+        container.style.cssText = `
+            position:fixed; inset:0; background:rgba(0,0,0,0.6);
+            display:flex; align-items:center; justify-content:center; z-index:9999;
+        `;
+        container.innerHTML = `
+            <div style="background:#1e293b; border:1px solid #334155; border-radius:12px;
+                        padding:24px; max-width:320px; text-align:center; color:#e2e8f0;">
+                <p style="margin-bottom:16px;">Delete this item?</p>
+                <div style="display:flex; gap:12px; justify-content:center;">
+                    <button id="_dlg_yes" style="background:#ef4444; color:white; border:none;
+                            padding:8px 24px; border-radius:6px; cursor:pointer;">Delete</button>
+                    <button id="_dlg_no" style="background:#334155; color:#e2e8f0; border:none;
+                            padding:8px 24px; border-radius:6px; cursor:pointer;">Cancel</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(container);
+        document.getElementById('_dlg_yes').addEventListener('click', () => {
+            const list = getWishlist().filter(x => x.id !== id);
+            saveWishlist(list);
+            renderWishlist();
+            document.body.removeChild(container);
+        });
+        document.getElementById('_dlg_no').addEventListener('click', () => {
+            document.body.removeChild(container);
+        });
+    }
+
+    function confirmClearAll() {
+        const container = document.createElement('div');
+        container.style.cssText = `
+            position:fixed; inset:0; background:rgba(0,0,0,0.6);
+            display:flex; align-items:center; justify-content:center; z-index:9999;
+        `;
+        container.innerHTML = `
+            <div style="background:#1e293b; border:1px solid #334155; border-radius:12px;
+                        padding:24px; max-width:320px; text-align:center; color:#e2e8f0;">
+                <p style="margin-bottom:16px;">Clear all stashed deals?</p>
+                <div style="display:flex; gap:12px; justify-content:center;">
+                    <button id="_dlg_yes2" style="background:#ef4444; color:white; border:none;
+                            padding:8px 24px; border-radius:6px; cursor:pointer;">Clear All</button>
+                    <button id="_dlg_no2" style="background:#334155; color:#e2e8f0; border:none;
+                            padding:8px 24px; border-radius:6px; cursor:pointer;">Cancel</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(container);
+        document.getElementById('_dlg_yes2').addEventListener('click', () => {
+            localStorage.removeItem(DB_KEY);
+            renderWishlist();
+            document.body.removeChild(container);
+        });
+        document.getElementById('_dlg_no2').addEventListener('click', () => {
+            document.body.removeChild(container);
+        });
+    }
+
+    // ─── SORTING ──────────────────────────────────────────────────────────────
+
+    function sortList(criteria) {
+        let list = getWishlist();
+        if (criteria === 'price') {
+            list.sort((a, b) => (Number(a.flashDeal.bestPrice) || 999999) - (Number(b.flashDeal.bestPrice) || 999999));
+        } else if (criteria === 'cashback') {
+            list.sort((a, b) => (Number(b.flashDeal.cashback) || 0) - (Number(a.flashDeal.cashback) || 0));
+        }
+        saveWishlist(list);
+        renderWishlist();
+    }
+</script>
+
+</body>
+</html>

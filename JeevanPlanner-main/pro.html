@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net;
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                   font-src https://fonts.gstatic.com;
+                   img-src 'self' data:;
+                   connect-src 'none';">
+    <title>JeevanPlanner Pro | FY 2025-26 Financial Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* === VISUAL ENGINE === */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
+        }
+
+        .professional-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .tax-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .form-control {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .result-highlight {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-up {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .disclaimer-banner {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-left: 4px solid #10b981;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+
+            button,
+            .no-print,
+            nav,
+            footer,
+            .professional-badge {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .glass-card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                break-inside: avoid;
+                margin-bottom: 20px;
+            }
+
+            .result-highlight {
+                background: #f9f9f9 !important;
+                border-left: 3px solid #ccc !important;
+            }
+
+            input,
+            select {
+                border: none !important;
+                background: transparent !important;
+                appearance: none;
+                padding: 0 !important;
+            }
+
+            canvas {
+                max-height: 300px !important;
+            }
+
+            .print-header {
+                display: block !important;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+        }
+
+        .print-header {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="text-gray-800 animate-up">
+
+    <div class="print-header text-center">
+        <h1 class="text-3xl font-bold">WealthPath Pro Report</h1>
+        <p class="text-sm text-gray-600">Generated via v3.3 (FY 2025-26)</p>
+    </div>
+
+    <nav class="glass-card sticky top-0 z-50 shadow-lg mb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div
+                    class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                    â‚¹</div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">WealthPath Pro</h1>
+                    <p class="text-xs text-gray-500">v3.3 | FY 2025-26 | Audit Fixed</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <span class="professional-badge">Section 16 Compliant</span>
+                <span class="professional-badge tax-badge">FY 25-26</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+
+        <div class="disclaimer-banner rounded-lg p-4 mb-8">
+            <p class="text-sm text-gray-800">
+                <strong>âœ… Updated for FY 2025-26 (v3.3):</strong> New regime slabs updated (â‚¹4L exemption, 7 slabs), 87A
+                rebate raised to â‚¹60k,
+                Prof Tax as Section 16 deduction, Cess applied post-marginal relief.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <div class="lg:col-span-2 space-y-8">
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex justify-between">
+                        <span>ðŸ‘¤ Personal Profile</span>
+                        <span class="professional-badge">Step 1</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Age</label>
+                            <input type="number" id="ageInput" class="form-control" min="18" max="100" value="28"
+                                oninput="calculateAll()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Annual Gross Income (â‚¹)</label>
+                            <input type="number" id="annualIncome" class="form-control" value="1500000" min="0"
+                                oninput="calculateAll()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Employment Type</label>
+                            <select id="employmentType" class="form-control" onchange="calculateAll()">
+                                <option value="salaried">Salaried Employee</option>
+                                <option value="selfemployed">Self-Employed</option>
+                                <option value="business">Business Owner</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">State (For Prof Tax)</label>
+                            <select id="stateSelect" class="form-control" onchange="calculateAll()">
+                                <option value="MAH">Maharashtra</option>
+                                <option value="KAR">Karnataka</option>
+                                <option value="TN">Tamil Nadu</option>
+                                <option value="TEL">Telangana</option>
+                                <option value="AP">Andhra Pradesh</option>
+                                <option value="WB">West Bengal</option>
+                                <option value="GUJ">Gujarat</option>
+                                <option value="DEL">Delhi/NCR (Nil PT)</option>
+                                <option value="OTHER">Other States</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex justify-between">
+                        <span>ðŸ’° Income Tax (FY 25-26)</span>
+                        <span class="professional-badge tax-badge">Smart Engine</span>
+                    </h3>
+
+                    <div class="bg-indigo-50 p-4 rounded-xl mb-6">
+                        <p class="text-sm font-bold text-gray-900 mb-2">Select Tax Regime</p>
+                        <div class="flex gap-6">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="taxRegime" value="new" checked class="w-4 h-4 text-indigo-600"
+                                    onchange="calculateAll()">
+                                <span class="text-sm font-medium">New Regime (Std Ded â‚¹75k)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="taxRegime" value="old" class="w-4 h-4 text-indigo-600"
+                                    onchange="calculateAll()">
+                                <span class="text-sm font-medium">Old Regime (Std Ded â‚¹50k)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Deductions (Old Regime)
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                            <div><label class="text-xs block mb-1">80C Investments</label><input type="number"
+                                    id="section80C" class="form-control text-sm" value="100000" placeholder="Excl. EPF"
+                                    oninput="calculateAll()"></div>
+                            <div><label class="text-xs block mb-1">80D Health Insurance (Max &#8377;75k)</label><input type="number"
+                                    id="section80D" class="form-control text-sm" value="25000" oninput="calculateAll()">
+                            </div>
+                            <div><label class="text-xs block mb-1">80CCD NPS (50k)</label><input type="number"
+                                    id="section80CCD" class="form-control text-sm" value="50000"
+                                    oninput="calculateAll()"></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
+                            <div><label class="text-xs block mb-1">80E Edu Loan Interest</label><input type="number"
+                                    id="section80E" class="form-control text-sm" value="0" placeholder="No limit"
+                                    oninput="calculateAll()"></div>
+                            <div><label class="text-xs block mb-1">Sec 24(b) Home Loan Int</label><input type="number"
+                                    id="section24" class="form-control text-sm" value="0" placeholder="Max â‚¹2L"
+                                    oninput="calculateAll()"></div>
+                            <div><label class="text-xs block mb-1">80TTA Savings Int (10k)</label><input type="number"
+                                    id="section80TTA" class="form-control text-sm" value="0" placeholder="Max â‚¹10k"
+                                    oninput="calculateAll()"></div>
+                        </div>
+                        <p id="deductionWarning" class="text-xs text-orange-600 font-semibold hidden mt-1"></p>
+                    </div>
+
+                    <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Salary Components
+                            (Monthly)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                            <div><label class="text-xs block mb-1">Basic Salary</label><input type="number"
+                                    id="basicSalary" class="form-control text-sm" value="75000"
+                                    oninput="calculateAll()"></div>
+                            <div><label class="text-xs block mb-1">HRA Received</label><input type="number"
+                                    id="hraExemption" class="form-control text-sm" value="30000"
+                                    oninput="calculateAll()"></div>
+                            <div><label class="text-xs block mb-1">EPF (Deducted)</label><input type="number"
+                                    id="epfDeduction" class="form-control text-sm" value="1800"
+                                    placeholder="12% of Basic" oninput="calculateAll()"></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div><label class="text-xs block mb-1">Rent Paid</label><input type="number" id="rentPaid"
+                                    class="form-control text-sm" value="30000" oninput="calculateAll()"></div>
+                            <div>
+                                <label class="text-xs block mb-1">Metro City?</label>
+                                <select id="isMetro" class="form-control text-sm" onchange="calculateAll()">
+                                    <option value="yes">Yes (50%)</option>
+                                    <option value="no">No (40%)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="result-highlight">
+                            <p class="text-xs text-gray-600 uppercase">Annual Tax</p>
+                            <p class="text-2xl font-bold text-gray-900" id="incomeTaxAmount">â‚¹0</p>
+                        </div>
+                        <div class="result-highlight">
+                            <p class="text-xs text-gray-600 uppercase">Monthly In-Hand</p>
+                            <p class="text-2xl font-bold text-green-600" id="monthlyInHand">â‚¹0</p>
+                        </div>
+                        <div class="result-highlight">
+                            <p class="text-xs text-gray-600 uppercase">Effective Rate</p>
+                            <p class="text-2xl font-bold text-blue-600" id="effectiveTaxRate">0%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">ðŸ“Š Monthly Expenses</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div><label class="text-xs block mb-1">Rent</label><input type="number" id="rentExpense"
+                                class="form-control" value="20000" oninput="calculateAll()"></div>
+                        <div><label class="text-xs block mb-1">Food</label><input type="number" id="groceriesExpense"
+                                class="form-control" value="15000" oninput="calculateAll()"></div>
+                        <div><label class="text-xs block mb-1">Utilities</label><input type="number"
+                                id="utilitiesExpense" class="form-control" value="8000" oninput="calculateAll()"></div>
+                        <div><label class="text-xs block mb-1">Transport</label><input type="number"
+                                id="transportExpense" class="form-control" value="5000" oninput="calculateAll()"></div>
+                        <div><label class="text-xs block mb-1">Health</label><input type="number" id="healthcareExpense"
+                                class="form-control" value="3000" oninput="calculateAll()"></div>
+                        <div><label class="text-xs block mb-1">Misc</label><input type="number"
+                                id="entertainmentExpense" class="form-control" value="10000" oninput="calculateAll()">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center p-3 bg-gray-100 rounded-lg">
+                        <span class="font-bold text-sm">Total Monthly Expenses</span>
+                        <span class="font-bold text-xl" id="totalExpenses">â‚¹0</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">ðŸš€ SIP Planning</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                        <div><label class="text-xs block mb-1">Monthly SIP (â‚¹)</label><input type="number"
+                                id="monthlySIP" class="form-control" value="20000" oninput="calculateAll()"></div>
+                        <div><label class="text-xs block mb-1">Return (%)</label><input type="number"
+                                id="expectedReturn" class="form-control" value="12" step="0.5" oninput="calculateAll()">
+                        </div>
+                        <div><label class="text-xs block mb-1">Years</label><input type="number" id="investmentHorizon"
+                                class="form-control" value="20" oninput="calculateAll()"></div>
+                        <div>
+                            <label class="text-xs block mb-1">Risk Profile</label>
+                            <select id="riskProfile" class="form-control" onchange="calculateAll()">
+                                <option value="conservative">Conservative</option>
+                                <option value="moderate" selected>Moderate</option>
+                                <option value="aggressive">Aggressive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-highlight text-center">
+                        <p class="text-sm text-gray-600">Corpus after <span id="horizonDisplay">20</span> Years</p>
+                        <p class="text-3xl font-bold text-green-600" id="sipCorpusValue">â‚¹0</p>
+                        <div class="flex justify-center gap-4 mt-2 text-xs text-gray-500">
+                            <span>Invested: <strong id="totalInvestedAmount">â‚¹0</strong></span>
+                            <span>Profit: <strong id="investmentReturns">â‚¹0</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">ðŸ¦ Loans & EMI</h3>
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-3 rounded-lg flex flex-col md:flex-row gap-3 items-end">
+                            <div class="flex-1">
+                                <span class="text-xs font-bold text-blue-800">Home Loan</span>
+                                <input type="number" id="homeLoanAmount" class="form-control mt-1 text-sm"
+                                    value="5000000" placeholder="Principal" oninput="calculateAll()">
+                            </div>
+                            <div class="w-24"><label class="text-xs">Rate %</label><input type="number"
+                                    id="homeLoanRate" class="form-control mt-1 text-sm" value="8.5"
+                                    oninput="calculateAll()"></div>
+                            <div class="w-24"><label class="text-xs">Years</label><input type="number"
+                                    id="homeLoanTenure" class="form-control mt-1 text-sm" value="20"
+                                    oninput="calculateAll()"></div>
+                            <div class="w-32 bg-white p-2 rounded border text-center">
+                                <div class="text-xs text-gray-500">EMI</div>
+                                <div class="font-bold" id="homeLoanEMI">â‚¹0</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 p-3 rounded-lg flex flex-col md:flex-row gap-3 items-end">
+                            <div class="flex-1">
+                                <span class="text-xs font-bold text-green-800">Car Loan</span>
+                                <input type="number" id="carLoanAmount" class="form-control mt-1 text-sm" value="800000"
+                                    oninput="calculateAll()">
+                            </div>
+                            <div class="w-24"><input type="number" id="carLoanRate" class="form-control mt-1 text-sm"
+                                    value="9.5" oninput="calculateAll()"></div>
+                            <div class="w-24"><input type="number" id="carLoanTenure" class="form-control mt-1 text-sm"
+                                    value="5" oninput="calculateAll()"></div>
+                            <div class="w-32 bg-white p-2 rounded border text-center">
+                                <div class="font-bold" id="carLoanEMI">â‚¹0</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 p-3 rounded-lg flex flex-col md:flex-row gap-3 items-end">
+                            <div class="flex-1">
+                                <span class="text-xs font-bold text-orange-800">Personal Loan</span>
+                                <input type="number" id="personalLoanAmount" class="form-control mt-1 text-sm"
+                                    value="500000" oninput="calculateAll()">
+                            </div>
+                            <div class="w-24"><input type="number" id="personalLoanRate"
+                                    class="form-control mt-1 text-sm" value="12" oninput="calculateAll()"></div>
+                            <div class="w-24"><input type="number" id="personalLoanTenure"
+                                    class="form-control mt-1 text-sm" value="3" oninput="calculateAll()"></div>
+                            <div class="w-32 bg-white p-2 rounded border text-center">
+                                <div class="font-bold" id="personalLoanEMI">â‚¹0</div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2 border-t">
+                            <span class="font-bold text-sm">Total Monthly EMI</span>
+                            <span class="text-xl font-bold" id="totalEMIDisplay">â‚¹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Asset Allocation</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div class="h-48 relative">
+                            <canvas id="assetAllocationChart"></canvas>
+                        </div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between p-2 bg-blue-50 rounded"><span
+                                    class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div> Equity
+                                </span><span class="font-bold" id="equityPercent">60%</span></div>
+                            <div class="flex justify-between p-2 bg-green-50 rounded"><span
+                                    class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div> Debt
+                                </span><span class="font-bold" id="debtPercent">30%</span></div>
+                            <div class="flex justify-between p-2 bg-yellow-50 rounded"><span
+                                    class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div> Gold
+                                </span><span class="font-bold" id="goldPercent">10%</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold mb-4">ðŸ“ˆ Financial Summary</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between border-b pb-2"><span>Gross Income (Monthly)</span><span
+                                id="monthlyGross" class="font-bold">â‚¹0</span></div>
+                        <div class="flex justify-between border-b pb-2"><span>Income Tax</span><span
+                                id="monthlyIncomeTax" class="font-bold text-red-600">â‚¹0</span></div>
+                        <div class="flex justify-between border-b pb-2"><span>Prof Tax & EPF (Deducted)</span><span
+                                id="monthlyDeductions" class="font-bold text-orange-600">â‚¹0</span></div>
+                        <div class="flex justify-between border-b pb-2 bg-green-50 px-2 py-1 rounded"><span
+                                class="font-bold">Net In-Hand</span><span id="netMonthlyIncome"
+                                class="font-bold text-green-600">â‚¹0</span></div>
+                        <div class="flex justify-between border-b pb-2"><span>Expenses</span><span id="summaryExpenses"
+                                class="font-bold">â‚¹0</span></div>
+                        <div class="flex justify-between border-b pb-2"><span>SIP Investment</span><span id="summarySIP"
+                                class="font-bold">â‚¹0</span></div>
+                        <div class="flex justify-between border-b pb-2"><span>EMI Payments</span><span id="summaryEMI"
+                                class="font-bold">â‚¹0</span></div>
+                        <div class="flex justify-between pt-2 items-center"><span class="font-bold">Monthly
+                                Surplus</span><span id="monthlySurplus" class="font-bold text-2xl">â‚¹0</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-gray-500">Savings Rate</span><span
+                                id="savingsRate" class="font-bold text-blue-600">0%</span></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold mb-4">ðŸ† Health Score</h3>
+                    <div class="flex justify-center mb-4">
+                        <div class="w-32 h-32 rounded-full border-8 flex items-center justify-center flex-col"
+                            id="scoreRing" style="border-color: #10b981;">
+                            <span class="text-3xl font-bold" id="healthScore">0</span>
+                            <span class="text-xs text-gray-500">/ 100</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <div class="flex justify-between mb-1"><span>Savings Ratio</span><span
+                                    id="savingsRateHealth">0%</span></div>
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div id="savingsBar" class="h-full bg-green-500" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1"><span>Expense Ratio</span><span
+                                    id="expenseRatioHealth">0%</span></div>
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div id="expenseBar" class="h-full bg-blue-500" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1"><span>Tax Efficiency</span><span
+                                    id="taxOptimizationHealth">0%</span></div>
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div id="taxBar" class="h-full bg-purple-500" style="width:0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold mb-4">ðŸŽ¯ Retirement (Age 60)</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between border-b pb-2"><span>Years to Retire</span><span
+                                id="yearsToRetire" class="font-bold">0</span></div>
+                        <div class="flex justify-between border-b pb-2"><span>Projected Corpus</span><span
+                                id="retirementProjection" class="font-bold text-blue-600">â‚¹0</span></div>
+                        <div class="flex justify-between border-b pb-2"><span>Required Corpus</span><span
+                                id="retirementRequired" class="font-bold text-gray-900">â‚¹0</span></div>
+                        <div class="flex justify-between pt-2"><span class="font-bold">Status</span><span
+                                id="retirementStatus" class="font-bold text-lg">---</span></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 no-print">
+                    <h3 class="text-lg font-bold mb-4">âœ… Recommendations</h3>
+                    <div id="recommendations" class="space-y-2 text-xs mb-4"></div>
+                    <button onclick="window.print()"
+                        class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition shadow-lg">ðŸ–¨ï¸
+                        Print Report</button>
+                    <button onclick="resetForm()"
+                        class="w-full mt-2 bg-gray-200 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-300 transition">Reset</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONSTANTS =====
+        const FY_2025_26 = {
+            NEW_REGIME_SLABS: [
+                { min: 0, max: 400000, rate: 0 },
+                { min: 400001, max: 800000, rate: 0.05 },
+                { min: 800001, max: 1200000, rate: 0.10 },
+                { min: 1200001, max: 1600000, rate: 0.15 },
+                { min: 1600001, max: 2000000, rate: 0.20 },
+                { min: 2000001, max: 2400000, rate: 0.25 },
+                { min: 2400001, max: Infinity, rate: 0.30 }
+            ],
+            OLD_REGIME_SLABS: [
+                { min: 0, max: 250000, rate: 0 },
+                { min: 250001, max: 500000, rate: 0.05 },
+                { min: 500001, max: 1000000, rate: 0.20 },
+                { min: 1000001, max: Infinity, rate: 0.30 }
+            ],
+            SURCHARGE_SLABS: [
+                { threshold: 20000000, rate: 0.25 }, // > 2Cr
+                { threshold: 10000000, rate: 0.15 }, // > 1Cr
+                { threshold: 5000000, rate: 0.10 }   // > 50L
+            ],
+
+            STD_DED_NEW: 75000,
+            STD_DED_OLD: 50000,
+
+            CESS: 0.04,
+            // Sec 80C max: â‚¹1,50,000 | Sec 80D max: â‚¹75,000 (self â‚¹25k + parents â‚¹50k) | NPS 80CCD(1B): â‚¹50,000
+            SECTION_80C: 150000, SECTION_80D: 75000, SECTION_80CCD: 50000,
+            // Annual Professional Tax by state (FY 2025-26)
+            // Gujarat: suspended collection (2023 notification). Karnataka: revised threshold â‚¹25k/mo.
+            PROF_TAX: { MAH: 2500, KAR: 2500, TN: 2500, TEL: 2400, AP: 2400, WB: 2400, GUJ: 0, DEL: 0, OTHER: 2400 }
+        };
+
+        function safeParseNumber(elementId, min = 0, defaultVal = 0) {
+            const el = document.getElementById(elementId);
+            if (!el) return defaultVal;
+            let val = parseFloat(el.value);
+            if (isNaN(val) || val === null) return defaultVal;
+            return Math.max(min, val);
+        }
+
+        // ===== MAIN LOOP =====
+        function calculateAll() {
+            try {
+                const incomeData = calculateIncomeTax();
+                const expenses = calculateMonthlyExpenses();
+                const totalEMI = calculateAllLoans();
+                calculateSIPProjection();
+
+                updateFinancialSummary(incomeData, expenses, totalEMI);
+                updateHealthScore(incomeData, expenses, totalEMI);
+                updateRetirementPlan();
+                updateAssetAllocation();
+                generateRecommendations(incomeData, expenses, totalEMI);
+            } catch (error) { console.error(error); }
+        }
+
+        // ===== 1. TAX LOGIC (v3.2) =====
+        function calculateIncomeTax() {
+            const annualIncome = safeParseNumber('annualIncome');
+            const regime = document.querySelector('input[name="taxRegime"]:checked').value;
+            const state = document.getElementById('stateSelect').value;
+            const employmentType = document.getElementById('employmentType').value;
+
+            // 1. Standard Deduction
+            let deductions = (regime === 'new') ? FY_2025_26.STD_DED_NEW : FY_2025_26.STD_DED_OLD;
+
+            // 2. Professional Tax (FIXED: Deductible u/s 16 for Salaried)
+            let annualProfTax = 0;
+            if (employmentType === 'salaried') {
+                // Threshold logic: PT only if income sufficient (Simplified check > 2.5L/yr)
+                if (annualIncome > 250000) {
+                    annualProfTax = FY_2025_26.PROF_TAX[state] ?? 2400;
+                    deductions += annualProfTax; // Added back per instruction
+                }
+            }
+
+            // 3. Old Regime Deductions
+            const epfMonthly = safeParseNumber('epfDeduction');
+            if (regime === 'old') {
+                const sec80C_User = safeParseNumber('section80C');
+                const epfAnnual = epfMonthly * 12;
+
+                // Add EPF to 80C (capped at â‚¹1.5L combined)
+                const total80C = Math.min(sec80C_User + epfAnnual, FY_2025_26.SECTION_80C);
+
+                // 80C overflow warning
+                const warnEl = document.getElementById('deductionWarning');
+                if (sec80C_User + epfAnnual > FY_2025_26.SECTION_80C) {
+                    warnEl.textContent = `âš ï¸ 80C overflow: Your investments (â‚¹${sec80C_User.toLocaleString('en-IN')}) + EPF (â‚¹${epfAnnual.toLocaleString('en-IN')}) = â‚¹${(sec80C_User + epfAnnual).toLocaleString('en-IN')} exceeds â‚¹1.5L cap. Only â‚¹1.5L used.`;
+                    warnEl.classList.remove('hidden');
+                } else {
+                    warnEl.classList.add('hidden');
+                }
+
+                const sec80D = Math.min(safeParseNumber('section80D'), FY_2025_26.SECTION_80D);
+                const sec80CCD = Math.min(safeParseNumber('section80CCD'), FY_2025_26.SECTION_80CCD);
+
+                // Section 80E: Education loan interest (NO upper limit)
+                const sec80E = safeParseNumber('section80E');
+
+                // Section 24(b): Home loan interest (max â‚¹2,00,000 for self-occupied)
+                const sec24 = Math.min(safeParseNumber('section24'), 200000);
+
+                // Section 80TTA: Savings account interest (max â‚¹10,000)
+                const sec80TTA = Math.min(safeParseNumber('section80TTA'), 10000);
+
+                const hraMonthly = safeParseNumber('hraExemption');
+                const basicMonthly = safeParseNumber('basicSalary');
+                const rentPaidMonthly = safeParseNumber('rentPaid');
+                const isMetro = document.getElementById('isMetro').value === 'yes';
+                const basicPercentage = isMetro ? 0.50 : 0.40;
+
+                const hraExempt = Math.min(
+                    hraMonthly * 12,
+                    Math.max(0, (rentPaidMonthly * 12) - (basicMonthly * 12 * 0.10)),
+                    basicMonthly * 12 * basicPercentage
+                );
+
+                deductions += total80C + sec80D + sec80CCD + sec80E + sec24 + sec80TTA + hraExempt;
+            } else {
+                // Hide warning in new regime
+                const warnEl = document.getElementById('deductionWarning');
+                if (warnEl) warnEl.classList.add('hidden');
+            }
+
+            const taxableIncome = Math.max(0, annualIncome - deductions);
+
+            // 4. Calculate Base Tax
+            let tax = calculateTaxByRegime(taxableIncome, regime);
+
+            // 5. Section 87A Rebate
+            if (regime === 'new' && taxableIncome <= 1200000) {
+                tax = Math.max(0, tax - 60000);
+                // Marginal relief: tax cannot exceed (taxableIncome - 1200000) for incomes just above 12L
+            } else if (regime === 'old' && taxableIncome <= 500000) {
+                tax = Math.max(0, tax - 12500);
+            }
+            // Marginal relief for new regime: ensure tax doesn't exceed income above 12L
+            if (regime === 'new' && taxableIncome > 1200000 && tax > (taxableIncome - 1200000)) {
+                tax = taxableIncome - 1200000;
+            }
+
+            // 6. Surcharge with Marginal Relief
+            let surcharge = 0;
+            if (annualIncome > 5000000) {
+                let rate = 0;
+                // Budget 2023 abolished the 37% surcharge slab.
+                // Maximum surcharge is 25% for ALL regimes from AY 2024-25 onwards.
+                if (annualIncome > 50000000) rate = 0.25;   // > â‚¹5 Cr  â†’ 25% (max, both regimes)
+                else if (annualIncome > 20000000) rate = 0.25; // > â‚¹2 Cr â†’ 25%
+                else if (annualIncome > 10000000) rate = 0.15; // > â‚¹1 Cr â†’ 15%
+                else rate = 0.10;                              // > â‚¹50L  â†’ 10%
+
+                surcharge = tax * rate;
+
+                // Marginal Relief Implementation
+                let threshold = 0;
+                if (annualIncome > 50000000) threshold = 50000000;
+                else if (annualIncome > 20000000) threshold = 20000000;
+                else if (annualIncome > 10000000) threshold = 10000000;
+                else threshold = 5000000;
+
+                if (threshold > 0) {
+                    // Calculate tax at threshold to verify jump
+                    const taxAtThreshold = calculateTaxByRegime(Math.max(0, threshold - deductions), regime);
+                    const excessIncome = annualIncome - threshold;
+                    // Maximum tax cannot exceed (Tax on Threshold + Excess Income)
+                    const maxTaxPayable = taxAtThreshold + excessIncome;
+                    const totalCalculated = tax + surcharge;
+
+                    if (totalCalculated > maxTaxPayable) {
+                        const relief = totalCalculated - maxTaxPayable;
+                        surcharge = Math.max(0, surcharge - relief);
+                    }
+                }
+            }
+
+            tax += surcharge;
+
+            // 7. Cess (Applied after marginal relief)
+            tax += tax * FY_2025_26.CESS;
+
+            // 8. In-Hand Calculation (Corrected: Minus Tax, Minus PT, Minus EPF)
+            const totalAnnualDeductions = tax + annualProfTax + (epfMonthly * 12);
+            const monthlyInHand = Math.max(0, (annualIncome - totalAnnualDeductions) / 12);
+
+            const effectiveTaxRate = annualIncome > 0 ? (tax / annualIncome) * 100 : 0;
+
+            document.getElementById('incomeTaxAmount').textContent = formatCurrency(tax);
+            document.getElementById('monthlyInHand').textContent = formatCurrency(monthlyInHand);
+            document.getElementById('effectiveTaxRate').textContent = effectiveTaxRate.toFixed(1) + '%';
+            document.getElementById('monthlyGross').textContent = formatCurrency(annualIncome / 12);
+            document.getElementById('monthlyIncomeTax').textContent = formatCurrency(tax / 12);
+            document.getElementById('monthlyDeductions').textContent = formatCurrency((annualProfTax / 12) + epfMonthly);
+            document.getElementById('netMonthlyIncome').textContent = formatCurrency(monthlyInHand);
+
+            return { annualIncome, monthlyInHand, effectiveTaxRate, regime };
+        }
+
+        function calculateTaxByRegime(taxableIncome, regime) {
+            const slabs = regime === 'new' ? FY_2025_26.NEW_REGIME_SLABS : FY_2025_26.OLD_REGIME_SLABS;
+            let tax = 0;
+            for (let slab of slabs) {
+                if (taxableIncome > slab.min) {
+                    const taxableInSlab = Math.min(taxableIncome - slab.min, slab.max - slab.min);
+                    tax += taxableInSlab * slab.rate;
+                }
+            }
+            return tax;
+        }
+
+        // ===== 2. EXPENSES =====
+        function calculateMonthlyExpenses() {
+            const ids = ['rentExpense', 'utilitiesExpense', 'groceriesExpense', 'transportExpense', 'healthcareExpense', 'entertainmentExpense'];
+            let total = 0;
+            ids.forEach(id => total += safeParseNumber(id));
+            document.getElementById('totalExpenses').textContent = formatCurrency(total);
+            document.getElementById('summaryExpenses').textContent = formatCurrency(total);
+            return total;
+        }
+
+        // ===== 3. SIP =====
+        function calculateSIPProjection() {
+            const monthly = safeParseNumber('monthlySIP');
+            const annual = safeParseNumber('expectedReturn');
+            const years = safeParseNumber('investmentHorizon', 1);
+
+            const monthlyRate = annual / 12 / 100;
+            const months = years * 12;
+
+            const futureValue = monthlyRate > 0
+                ? monthly * (((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate))
+                : monthly * months;
+
+            const invested = monthly * months;
+            const returns = futureValue - invested;
+
+            document.getElementById('sipCorpusValue').textContent = formatCurrency(futureValue);
+            document.getElementById('totalInvestedAmount').textContent = formatCurrency(invested);
+            document.getElementById('investmentReturns').textContent = formatCurrency(returns);
+            document.getElementById('horizonDisplay').textContent = years;
+            document.getElementById('summarySIP').textContent = formatCurrency(monthly);
+        }
+
+        // ===== 4. EMI =====
+        function calculateAllLoans() {
+            const home = calculateEMI('homeLoanAmount', 'homeLoanRate', 'homeLoanTenure');
+            const car = calculateEMI('carLoanAmount', 'carLoanRate', 'carLoanTenure');
+            const personal = calculateEMI('personalLoanAmount', 'personalLoanRate', 'personalLoanTenure');
+
+            document.getElementById('homeLoanEMI').textContent = formatCurrency(home);
+            document.getElementById('carLoanEMI').textContent = formatCurrency(car);
+            document.getElementById('personalLoanEMI').textContent = formatCurrency(personal);
+
+            const total = home + car + personal;
+            document.getElementById('totalEMIDisplay').textContent = formatCurrency(total);
+            document.getElementById('summaryEMI').textContent = formatCurrency(total);
+            return total;
+        }
+
+        function calculateEMI(idAmt, idRate, idTenure) {
+            const P = safeParseNumber(idAmt);
+            const R = safeParseNumber(idRate);
+            const N = safeParseNumber(idTenure) * 12;
+            if (P === 0) return 0;
+            if (R === 0) return P / N;
+            const r = R / 12 / 100;
+            return (P * r * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1);
+        }
+
+        // ===== 5. SUMMARY =====
+        function updateFinancialSummary(income, expenses, totalEMI) {
+            const monthlySIP = safeParseNumber('monthlySIP');
+            const surplus = income.monthlyInHand - expenses - monthlySIP - totalEMI;
+            const savingsRate = income.monthlyInHand > 0 ? ((monthlySIP / income.monthlyInHand) * 100) : 0;
+
+            const surpEl = document.getElementById('monthlySurplus');
+            surpEl.textContent = formatCurrency(surplus);
+            surpEl.className = surplus >= 0 ? 'font-bold text-2xl text-green-600' : 'font-bold text-2xl text-red-600';
+
+            document.getElementById('savingsRate').textContent = savingsRate.toFixed(1) + '%';
+        }
+
+        function updateHealthScore(income, expenses, totalEMI) {
+            const monthlySIP = safeParseNumber('monthlySIP');
+            const savingsRate = income.monthlyInHand > 0 ? ((monthlySIP / income.monthlyInHand) * 100) : 0;
+            const expenseRatio = income.monthlyInHand > 0 ? ((expenses / income.monthlyInHand) * 100) : 0;
+            const dtiRatio = income.monthlyInHand > 0 ? ((totalEMI / income.monthlyInHand) * 100) : 0;
+
+            let score = 50;
+            if (savingsRate >= 20) score += 20;
+            if (expenseRatio <= 50) score += 20;
+            if (dtiRatio <= 30) score += 10;
+            if (income.effectiveTaxRate <= 15) score += 10;
+
+            score = Math.min(100, Math.max(0, score));
+
+            document.getElementById('healthScore').textContent = Math.round(score);
+            document.getElementById('savingsRateHealth').textContent = savingsRate.toFixed(0) + '%';
+            document.getElementById('expenseRatioHealth').textContent = expenseRatio.toFixed(0) + '%';
+            document.getElementById('taxOptimizationHealth').textContent = (100 - income.effectiveTaxRate).toFixed(0) + '%';
+
+            document.getElementById('savingsBar').style.width = Math.min(100, savingsRate) + '%';
+            document.getElementById('expenseBar').style.width = Math.min(100, expenseRatio) + '%';
+            document.getElementById('taxBar').style.width = Math.min(100, 100 - income.effectiveTaxRate) + '%';
+
+            const ring = document.getElementById('scoreRing');
+            ring.style.borderColor = score > 75 ? '#10b981' : score > 50 ? '#f59e0b' : '#ef4444';
+        }
+
+        // ===== 6. RETIREMENT =====
+        function updateRetirementPlan() {
+            const age = safeParseNumber('ageInput');
+            const yearsLeft = Math.max(0, 60 - age);
+
+            if (yearsLeft === 0) {
+                document.getElementById('yearsToRetire').textContent = "0";
+                document.getElementById('retirementStatus').textContent = "ðŸŽ‰ Retired";
+                return;
+            }
+
+            const monthlySIP = safeParseNumber('monthlySIP');
+            const expenses = calculateMonthlyExpenses();
+            const required = (expenses * 12) * Math.pow(1.06, yearsLeft) * 25;
+
+            const r = safeParseNumber('expectedReturn') / 12 / 100;
+            const n = yearsLeft * 12;
+            const projected = monthlySIP * ((Math.pow(1 + r, n) - 1) / r);
+
+            document.getElementById('yearsToRetire').textContent = yearsLeft;
+            document.getElementById('retirementRequired').textContent = formatCurrency(required);
+            document.getElementById('retirementProjection').textContent = formatCurrency(projected);
+
+            document.getElementById('retirementStatus').textContent = projected >= required ? "âœ… On Track" : "âš ï¸ Shortfall";
+        }
+
+        // ===== 7. ASSET ALLOCATION =====
+        let assetChart = null;
+        function updateAssetAllocation() {
+            const profile = document.getElementById('riskProfile').value;
+            let e = 60, d = 30, g = 10;
+            if (profile === 'conservative') { e = 30; d = 60; g = 10; }
+            if (profile === 'aggressive') { e = 80; d = 10; g = 10; }
+
+            document.getElementById('equityPercent').textContent = e + '%';
+            document.getElementById('debtPercent').textContent = d + '%';
+            document.getElementById('goldPercent').textContent = g + '%';
+
+            const ctx = document.getElementById('assetAllocationChart');
+            if (assetChart) {
+                assetChart.data.datasets[0].data = [e, d, g];
+                assetChart.update();
+            } else {
+                assetChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Equity', 'Debt', 'Gold'],
+                        datasets: [{ data: [e, d, g], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            }
+        }
+
+        // ===== 8. UTILS =====
+        function formatCurrency(num) {
+            if (!num) return 'â‚¹0';
+            if (num >= 10000000) return 'â‚¹' + (num / 10000000).toFixed(2) + ' Cr';
+            if (num >= 100000) return 'â‚¹' + (num / 100000).toFixed(1) + ' L';
+            return 'â‚¹' + Math.round(num).toLocaleString('en-IN');
+        }
+
+        function generateRecommendations(income, expenses, emi) {
+            const sip = safeParseNumber('monthlySIP');
+            const savingsRate = income.monthlyInHand > 0 ? (sip / income.monthlyInHand * 100) : 0;
+            const html = [];
+
+            if (savingsRate < 20) html.push(`<div class="p-2 bg-red-100 rounded text-red-800">ðŸ”´ Boost Savings (Current: ${savingsRate.toFixed(0)}%)</div>`);
+            else html.push(`<div class="p-2 bg-green-100 rounded text-green-800">âœ… Great Savings Rate!</div>`);
+
+            if (income.regime === 'old') html.push(`<div class="p-2 bg-blue-100 rounded text-blue-800">ðŸ’¡ Maximize 80C Limit</div>`);
+
+            document.getElementById('recommendations').innerHTML = html.join('');
+        }
+
+        function resetForm() {
+            // Custom confirm dialog (avoids browser confirm() which can be blocked)
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999';
+            modal.innerHTML = '<div style="background:white;padding:24px;border-radius:12px;max-width:320px;text-align:center"><p style="margin-bottom:16px;font-weight:600">Reset all values to defaults?</p><div style="display:flex;gap:12px;justify-content:center"><button id="_r_yes" style="background:#ef4444;color:white;border:none;padding:8px 24px;border-radius:6px;cursor:pointer">Reset</button><button id="_r_no" style="background:#e5e7eb;border:none;padding:8px 24px;border-radius:6px;cursor:pointer">Cancel</button></div></div>';
+            document.body.appendChild(modal);
+            document.getElementById('_r_yes').onclick = () => {
+                document.querySelectorAll('input').forEach(i => i.value = i.defaultValue);
+                calculateAll();
+                document.body.removeChild(modal);
+            };
+            document.getElementById('_r_no').onclick = () => document.body.removeChild(modal);
+        }
+
+        // Add Input Validation for Negatives
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.addEventListener('input', function () {
+                    if (this.value < 0) this.value = 0;
+                    calculateAll();
+                });
+            });
+            calculateAll();
+        });
+    </script>
+
+</body>
+</html>
