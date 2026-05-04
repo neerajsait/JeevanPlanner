@@ -4,8 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self';
                  script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net;
                  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
                  font-src https://fonts.gstatic.com;
@@ -284,8 +283,8 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="badge badge-primary">FY 25-26</span>
-          <button onclick="window.print()" class="p-2 text-slate-500 hover:text-slate-700"
-            title="Print Report" rel="noopener">
+          <button onclick="window.print()" class="p-2 text-slate-500 hover:text-slate-700" title="Print Report"
+            rel="noopener">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -868,7 +867,7 @@
         case 'maharashtra':
           // MH: ≤7500→0; 7501–10000→175/mo; >10000→200/mo (Feb=300 to cap ₹2500/yr)
           if (g > 10000) return isFeb ? 300 : 200;
-          if (g > 7500)  return 175;
+          if (g > 7500) return 175;
           return 0;
 
         case 'karnataka':
@@ -889,9 +888,9 @@
           // We return a monthly average (÷6) for CTC calculations.
           if (g > 75000) return Math.round(1250 / 6);
           if (g > 60000) return Math.round(1025 / 6);
-          if (g > 45000) return Math.round(930  / 6);
-          if (g > 30000) return Math.round(425  / 6);
-          if (g > 21000) return Math.round(180  / 6);
+          if (g > 45000) return Math.round(930 / 6);
+          if (g > 30000) return Math.round(425 / 6);
+          if (g > 21000) return Math.round(180 / 6);
           return 0;
 
         case 'west_bengal':
@@ -939,8 +938,8 @@
       let tax = 0;
       let remaining = income;
       if (remaining > 1000000) { tax += (remaining - 1000000) * 0.30; remaining = 1000000; }
-      if (remaining > 500000)  { tax += (remaining - 500000)  * 0.20; remaining = 500000; }
-      if (remaining > slab1)   { tax += (remaining - slab1)   * 0.05; }
+      if (remaining > 500000) { tax += (remaining - 500000) * 0.20; remaining = 500000; }
+      if (remaining > slab1) { tax += (remaining - slab1) * 0.05; }
 
       // Section 87A: ₹12,500 rebate if taxable income ≤ ₹5L
       if (income <= 500000) tax = Math.max(0, tax - 12500);
@@ -950,8 +949,8 @@
       // >₹50L but ≤₹1Cr: 10% | >₹1Cr but ≤₹2Cr: 15% | >₹2Cr: 25%
       if (income > 5000000) {
         const surchargeRate = income > 20000000 ? 0.25
-                            : income > 10000000 ? 0.15
-                            : 0.10;
+          : income > 10000000 ? 0.15
+            : 0.10;
         tax += tax * surchargeRate;
       }
       return tax;
