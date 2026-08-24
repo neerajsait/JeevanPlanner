@@ -1,39 +1,37 @@
-# 🔒 Zero-Knowledge Vault (zk-vault)
+# JeevanPlanner
 
-Welcome to **zk-vault**! This is a secure web application designed to store your passwords, notes, and secret files. 
+> Life planner web app for organizing daily tasks, goals, and schedules
 
-What makes this vault special is that it is **Zero-Knowledge**. This means your passwords and files are encrypted *in your browser* before being sent to the server. The server never sees your actual passwords or keys, and it cannot read your stored data. Even if someone hacks the server or database, your information remains safe and unreadable!
+Built with HTML and focused on css, html, javascript, planner.
 
----
+## About this project
 
-## 📖 Table of Contents
-1. [How It Works (For Beginners)](#-how-it-works-for-beginners)
-2. [Security & Cryptographic Flow Chart](#-security--cryptographic-flow-chart)
-3. [Security Features Checklist](#-security-features-checklist)
-4. [Prerequisites (What you need installed)](#-prerequisites-what-you-need-installed)
-5. [Step-by-Step Installation & Setup](#-step-by-step-installation--setup)
-6. [Understanding the `.env` Configuration File](#-understanding-the-env-configuration-file)
-7. [Running the Application](#-running-the-application)
-8. [How to Use the App (User Guide)](#-how-to-use-the-app-user-guide)
-9. [Security Best Practices for Hosting](#-security-best-practices-for-hosting)
-10. [API Endpoint Reference (For Developers)](#-api-endpoint-reference-for-developers)
-11. [Troubleshooting Common Issues](#%EF%B8%F0-troubleshooting-common-issues)
+This repository is part of **Neeraj Sai's** growing collection of software projects, experiments, and learning builds. It reflects a practical, curious approach to creating useful products and understanding how they work under the hood.
 
----
+## Getting started
 
-## 🧠 How It Works (For Beginners)
+Clone the repository and follow the setup instructions for the project's framework or language:
 
-To understand why this system is so secure, think of it as a physical safe box:
+```bash
+git clone https://github.com/neerajsait/JeevanPlanner.git
+cd JeevanPlanner
+```
 
-1. **Creating the Key (Key Derivation):** When you sign up, your browser takes your Master Password and a unique random "salt" (a random starting value) and runs it through a slow mathematical algorithm called **Argon2id**. This generates a strong 256-bit cryptographic key (called `key1`).
-2. **Locking the Box (Encryption):** Your browser uses `key1` to encrypt your files and credentials using **AES-GCM** (an unbreakable digital lock). This encrypted chunk of text looks like random garbage.
-3. **Sending the Box to the Server:** The browser sends only the encrypted "random garbage" to the server. The server stores this in the database.
-4. **Proving Who You Are (Verifiers):** To log in, the browser derives a separate value called a **Login Verifier** using **HKDF** (a one-way formula) from your `key1` and sends it to the server. The server stores a hash of this verifier. When you log in, the server matches the verifier to prove you know the password, but the server *never* learns `key1` or your password.
+Check the project files for the available run commands and configuration requirements.
 
-> [!CAUTION]
-> **⚠️ CRITICAL WARNING: NO PASSWORD RESET!**
-> Because this is a Zero-Knowledge Vault, your master password **never leaves your device** and is never stored on the server. 
-> There is **no "Forgot Password" or "Reset Password" button**. If you lose or forget your Master Password, **your encrypted vault data is permanently locked and cannot be recovered by anyone, including the server administrators.** Write down your password in a safe physical location!
+## Links
+
+[Repository](https://github.com/neerajsait/JeevanPlanner)
+
+## Author
+
+**Tiruveedhi Neeraj Venkata Sai**
+
+- GitHub: [@neerajsait](https://github.com/neerajsait)
+- Portfolio: [neeraj's portfolio](https://github.com/neerajsait/portfoliomain)
+
+
+## Existing project documentation
 
 ---
 
